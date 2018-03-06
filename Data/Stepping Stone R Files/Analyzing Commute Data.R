@@ -1,7 +1,8 @@
-CensusPop <- read.csv(file = "SB-Ventura Census Tract Populations.csv")
+CPType <- sapply(CensusPop, class)
+CPType <- as.vector(CPType)
+CensusPop <- read.table(file = "SB-Ventura Census Tract Populations.txt", header = TRUE, colClasses = CPType)
 
 # Now let's get the observations down to within an hour driving time in traffic of Carpinteria
-CensusPop <- CensusPop[CensusPop$DrivingTime <= 3600 | is.na(CensusPop$DrivingTime),]
 
 # Looks like there are some NAs in DriveTime and BikeTime, but there are really a lot
 # of NAs in TransitTime. Let's try to open a few of these NAs and see if there's a 

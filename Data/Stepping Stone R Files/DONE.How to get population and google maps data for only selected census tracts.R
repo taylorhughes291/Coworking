@@ -1,8 +1,3 @@
-MarketCensus <- read.csv("Starting Point Data Files/Midway Analysis Data Files/PUMS Data SB-Ventura County Market Areas")
-# Now you have the file in Excel in the case you want to analyze in that format.
-
-#-----------------------------
-
 # In order to get more granular census tract data
 library(tidycensus)
 library(tidyverse)
@@ -67,24 +62,24 @@ CensusPop <- subset(CensusPop, select = -c(variable, USPS, ALAND, AWATER))
 library(gmapsdistance)
 tomorrow <- as.character(Sys.Date() + 1)
 DriveTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                     destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
-                                     mode = "driving",
-                                     arr_date = tomorrow,
-                                     arr_time = "17:00:00")
+                           destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
+                           mode = "driving",
+                           arr_date = tomorrow,
+                           arr_time = "17:00:00")
 
 BikeTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                    destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
-                                    mode = "bicycling",
-                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
-                                    arr_date = tomorrow,
-                                    arr_time = "17:00:00")
+                          destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
+                          mode = "bicycling",
+                          key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                          arr_date = tomorrow,
+                          arr_time = "17:00:00")
 
 TransitTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                    destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
-                                    mode = "transit",
-                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
-                                    arr_date = tomorrow,
-                                    arr_time = "17:00:00")
+                             destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
+                             mode = "transit",
+                             key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                             arr_date = tomorrow,
+                             arr_time = "17:00:00")
 
 # DriveTime is a list with three data frames (Time, Distance, Status). Let's get Time over
 # to the CensusPop Data Frame as DrivingTime variable.
@@ -113,10 +108,10 @@ write.csv(CensusPop, file = "SB-Ventura Census Tract Populations.csv")
 
 PUMATractDecoder <- fread("https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt", colClasses = c("character", "character", "character", "character"))
 PUMATractDecoder <- PUMATractDecoder[PUMATractDecoder$STATEFP == "06" & 
-                                    (PUMATractDecoder$PUMA5CE == "08303" | 
-                                     PUMATractDecoder$PUMA5CE == "11104" | 
-                                     PUMATractDecoder$PUMA5CE == "11103" | 
-                                     PUMATractDecoder$PUMA5CE == "11106"), ]
+                                       (PUMATractDecoder$PUMA5CE == "08303" | 
+                                          PUMATractDecoder$PUMA5CE == "11104" | 
+                                          PUMATractDecoder$PUMA5CE == "11103" | 
+                                          PUMATractDecoder$PUMA5CE == "11106"), ]
 
 
 PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP, 
@@ -126,4 +121,4 @@ PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP,
 
 CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
 # Write it to an excel file to analyze
-write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt")
+write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt", row.names = FALSE)

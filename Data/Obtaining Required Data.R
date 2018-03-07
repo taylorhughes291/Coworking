@@ -14,7 +14,7 @@ data(fips_codes)
 subset(fips_codes, county == "Santa Barbara County" | county == "Ventura County")
 # Looks like SB County is 083 and Ventura County is 111
 
-#Now if we want to get population by Census Tract in Santa Barbara and Ventura Counties
+# Now if we want to get population by Census Tract in Santa Barbara and Ventura Counties
 CensusPop <- get_acs(geography = "tract", 
                      variables = "B01003_001", 
                      state = "CA", 
@@ -126,4 +126,4 @@ PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP,
 
 CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
 # Write it to an excel file to analyze
-write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt")
+write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt", row.names = FALSE)

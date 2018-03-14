@@ -1,4 +1,4 @@
-MarketCensus <- read.csv("Starting Point Data Files/Midway Analysis Data Files/PUMS Data SB-Ventura County Market Areas")
+MarketCensus <- read.csv("Starting Point Data Files/PUMS Data SB-Ventura County Market Areas")
 # Now you have the file in Excel in the case you want to analyze in that format.
 
 #-----------------------------

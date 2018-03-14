@@ -260,6 +260,22 @@ $(document).ready(function () {
 <li>What type of health insurance does the person have, if any?</li>
 <li>What is the person’s current workspace?</li>
 <li>What is that person’s highest level of education?</li>
+<li>What is this person’s relative income?</li>
+</ul>
+<p>Checking out the <a href="https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMSDataDict16.pdf">PUMS Data Dictionary</a> we can see what columns correlate to our desired variables.</p>
+<ul>
+<li>Mode of Transportation: “JWTR”</li>
+<li>Travel Time to Work: We need to create this variable using Google Maps API using “JWAP” and “PUMA”</li>
+<li>Age: “AGEP”</li>
+<li>Job Type: “COW”</li>
+<li>Occupation: “OCCP”</li>
+<li>Gender: “SEX”</li>
+<li>Marital Status: “MAR”</li>
+<li>Number of Children: Unfortunately this data is not available.</li>
+<li>Health Insurance Status: “HICOV”</li>
+<li>Current Workspace: “JWTR” contains Home Office information</li>
+<li>Education information: “SCHL”</li>
+<li>Income Information: “PINCP” adjusted by “ADJINC”</li>
 </ul>
 </div>
 </div>
@@ -277,8 +293,16 @@ $(document).ready(function () {
 </ul>
 <pre class="r"><code>Census &lt;- read.csv(&quot;Starting Point Data Files/ss16pca.csv&quot;)
 MarketCensus &lt;- Census[Census$PUMA == 08303 | Census$PUMA == 11104 | Census$PUMA == 11103 | Census$PUMA == 11106, ]
-write.csv(MarketCensus, file = &quot;PUMS Data SB-Ventura County Market Areas.csv&quot;)</code></pre>
+
+MarketCensus &lt;- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
+
+write.csv(MarketCensus, file = &quot;Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv&quot;)</code></pre>
 <p>I now recommend you to delete the “ss16pca.csv” file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file “Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv”.</p>
+</div>
+<div id="cleaning-the-data" class="section level1">
+<h1>Cleaning the Data</h1>
+<p>Now that we have all the data we could possibly want, it’s time for us to clean it up and make it usable. Since we know that we will have to create our own training data based off of the results of the 2016 Global Coworking Survey, we know we basically have to transform our data to look like the results of that survey.</p>
+<hr />
 <pre class="r"><code># In order to get the FIPS Code for Santa Barbara and Ventura Counties
 data(fips_codes)
 subset(fips_codes, county == &quot;Santa Barbara County&quot; | county == &quot;Ventura County&quot;)</code></pre>

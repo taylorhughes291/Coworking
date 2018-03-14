@@ -136,11 +136,11 @@ Checking out the [PUMS Data Dictionary](https://www2.census.gov/programs-surveys
 * Occupation: "OCCP"
 * Gender: "SEX"
 * Marital Status: "MAR"
-* Number of Children: "NOC"
+* Number of Children: Unfortunately this data is not available.
 * Health Insurance Status: "HICOV"
 * Current Workspace: "JWTR" contains Home Office information
 * Education information: "SCHL"
-* Income Information: "HINCP" adjusted by "ADJINC"
+* Income Information: "PINCP" adjusted by "ADJINC"
 
 # How to get this data
 
@@ -170,12 +170,33 @@ opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 Census <- read.csv("Starting Point Data Files/ss16pca.csv")
 MarketCensus <- Census[Census$PUMA == 08303 | Census$PUMA == 11104 | Census$PUMA == 11103 | Census$PUMA == 11106, ]
 
-MarketCensus <- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, HINCP, ADJINC, PUMA))
+MarketCensus <- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
 
 write.csv(MarketCensus, file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv")
 ```
 
 I now recommend you to delete the "ss16pca.csv" file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv".
+
+# Cleaning the Data
+Now that we have all the data we could possibly want, it's time for us to clean it up and make it usable. Since we know that we will have to create our own training data based off of the results of the 2016 Global Coworking Survey, we know we basically have to transform our data to look like the results of that survey since that's the kind of data we'll be constructing anyway. We'll start with the names:
+```{r}
+names(MarketCensus) <- c("TransportationMode", "ArrivalTime", "Age", "ClassOfWorker", "Occupation", "Sex", "MaritalStatus", "HealthInsurance", "EducationLevel", "TotalIncome", "IncomeAdjuster", "PUMA")
+```
+
+## Work From Home Office
+Let's make a category within our data set to encode for if this person works in a home office or not. If this person works from home, it will be denoted as a 1. Otherwise it is a 0.
+```{r}
+MarketCensus$HomeOffice <- ifelse(MarketCensus$TransportationMode == 11, 1, 0)
+MarketCensus$HomeOffice[is.na(MarketCensus$HomeOffice)] <- 0
+```
+
+## Mode of Transportation
+We immediately see that this is an integer variable that needs to be translated to a categorical variable, where the categories should be "Driving", "Biking", "Walking", and "Public Transit". We see that this survey encodes for many things, so we will break it down as follows:
+
+* "Driving" will code for "1", "7" and "8" which stands for "Car, truck, or van", "Taxicab", and "Motorcycle".
+* "Biking" will code for "9" which stands for "Bicycle".
+* "Walking" will code for "10" which stands for "Walked".
+* "Public Transit" will code for "2", "3", "4", "5" which stands for "Bus or trolley bus", "Streetcar or trolley car", "Subway or elevated", and "Railroad".
 
 --------------------------------------------------------
 

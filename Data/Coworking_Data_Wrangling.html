@@ -160,18 +160,16 @@ $(document).ready(function () {
 <li>Freelancer: 32%</li>
 <li>Other: 5%</li>
 </ul>
-<p>Moving over to slide 55, we further see the following breakdown of Job type:</p>
+<p>Moving over to slide 55, we further see the following breakdown of Job type. Please note that there were separate categories for Project Management (4%) and Consulting (15%) however those do not correlate to any jobs found in the US Census Occupation variable. As a result, I have moved Project Management’s share of the overall total in halves to IT and Business Development. I have spread Consulting around evenly to IT, PR, Design, Research, Business Development, and Higher Management.</p>
 <ul>
-<li>IT (Software Engineer, Web Developer): 27%</li>
-<li>Consulting: 15%</li>
-<li>PR, Marketing, Sales, Advertising: 5%</li>
-<li>Design: 7%</li>
-<li>Project Management: 4%</li>
-<li>Research: 4%</li>
+<li>IT (Software Engineer, Web Developer): 31.5%</li>
+<li>PR, Marketing, Sales, Advertising: 7.5%</li>
+<li>Design: 9.5%</li>
+<li>Research: 6.5%</li>
 <li>Writing: 5%</li>
-<li>Business Development (includes entrepreneurs): 3%</li>
+<li>Business Development (includes entrepreneurs): 7.5%</li>
 <li>Education: 5%</li>
-<li>Higher Management: 5%</li>
+<li>Higher Management: 7.5%</li>
 <li>Art: 3%</li>
 <li>Other: 16%</li>
 </ul>
@@ -182,10 +180,9 @@ $(document).ready(function () {
 </div>
 <div id="relationship-status" class="section level3">
 <h3>Relationship Status</h3>
-<p>In the US, relationship status of survey respondents were as follows:</p>
+<p>In the US, relationship status of survey respondents were as follows. However, the US Census does not distinguish between Single and In a Relationship so I have combined these categories into a single “Unmarried” category:</p>
 <ul>
-<li>Single: 19%</li>
-<li>In a relationship, unmarried: 22%</li>
+<li>In a relationship, unmarried: 41%</li>
 <li>Married: 47%</li>
 <li>Separated, Divorced, Widowed: 7%</li>
 <li>Other or NA: 5%</li>
@@ -200,24 +197,18 @@ $(document).ready(function () {
 </div>
 <div id="health-insurance-of-members" class="section level3">
 <h3>Health Insurance of members</h3>
-<p>In the US, the following breakdown of health insurance per respondent was as follows:</p>
+<p>In the US, the following breakdown of health insurance per respondent was as follows. Please note that the US Census only differentiates between “Health Insurance” and “No Health Insurance” and as a result I have rolled “Other” and NA into “No Health Insurance”:</p>
 <ul>
-<li>Enhanced Health Insurance: 35%</li>
-<li>Basic Health Insurance: 52%</li>
-<li>No Health Insurance: 9%</li>
-<li>Other: 1%</li>
-<li>NA: 3%</li>
+<li>Health Insurance: 87%</li>
+<li>No Health Insurance: 13%</li>
 </ul>
 </div>
 <div id="last-place-of-work---before-starting-coworking" class="section level3">
 <h3>Last place of work - before starting coworking</h3>
-<p>In the US, the following breakdown illustrates where respondents worked before deciding to go to a coworking space:</p>
+<p>In the US, the following breakdown illustrates where respondents worked before deciding to go to a coworking space. However, the only information we can glean about this category from the US Census is whether or not somebody worked in a Home Office or not. As a result, I will boil down “Traditional Office”, “Coffee Shop”, “Small Shared Office Community”, and “No Fixed Location” into “Not Home Office”:</p>
 <ul>
 <li>Home Office: 44%</li>
-<li>Traditional Office: 37%</li>
-<li>Coffee Shop: 11%</li>
-<li>Small Shared Office Community: 2%</li>
-<li>No Fixed Location: 6%</li>
+<li>Not Home Office: 56%</li>
 </ul>
 </div>
 <div id="highest-level-of-school-education" class="section level3">
@@ -292,31 +283,207 @@ $(document).ready(function () {
 <li>Run the R script below in order to get only the market areas you want from this file. This script will also save your filtered result in a file that will take much less time to read upon subsequent analyses, as long as you have begun this activity from the designated R Project instead of just this file alone.</li>
 </ul>
 <pre class="r"><code>Census &lt;- read.csv(&quot;Starting Point Data Files/ss16pca.csv&quot;)
-MarketCensus &lt;- Census[Census$PUMA == 08303 | Census$PUMA == 11104 | Census$PUMA == 11103 | Census$PUMA == 11106, ]
+MarketCensus &lt;- Census[Census$PUMA == 8303 | Census$PUMA == 11104 | Census$PUMA == 
+    11103 | Census$PUMA == 11106, ]
 
-MarketCensus &lt;- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
+MarketCensus &lt;- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, 
+    MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
 
-write.csv(MarketCensus, file = &quot;Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv&quot;)</code></pre>
-<p>I now recommend you to delete the “ss16pca.csv” file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file “Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv”.</p>
+write.csv(MarketCensus, file = &quot;Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv&quot;, 
+    row.names = FALSE)</code></pre>
+<p>I now recommend that you delete the “ss16pca.csv” file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file “Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv”.</p>
 </div>
 <div id="cleaning-the-data" class="section level1">
 <h1>Cleaning the Data</h1>
-<p>Now that we have all the data we could possibly want, it’s time for us to clean it up and make it usable. Since we know that we will have to create our own training data based off of the results of the 2016 Global Coworking Survey, we know we basically have to transform our data to look like the results of that survey.</p>
+<p>Now that we have all the data we could possibly want, it’s time for us to clean it up and make it usable. Since we know that we will have to create our own training data based off of the results of the 2016 Global Coworking Survey, we know we basically have to transform our data to look like the results of that survey since that’s the kind of data we’ll be constructing anyway. We’ll start with the names:</p>
+<pre class="r"><code>names(MarketCensus) &lt;- c(&quot;TransportationMode&quot;, &quot;ArrivalTime&quot;, &quot;Age&quot;, &quot;ClassOfWorker&quot;, 
+    &quot;Occupation&quot;, &quot;Sex&quot;, &quot;MaritalStatus&quot;, &quot;HealthInsurance&quot;, &quot;EducationLevel&quot;, &quot;TotalIncome&quot;, 
+    &quot;IncomeAdjuster&quot;, &quot;PUMA&quot;)</code></pre>
+<div id="work-from-home-office" class="section level2">
+<h2>Work From Home Office</h2>
+<p>Let’s make a category within our data set to encode for if this person works in a home office or not. If this person works from home, it will be denoted as a 1. Otherwise it is a 0.</p>
+<pre class="r"><code>MarketCensus$HomeOffice &lt;- ifelse(MarketCensus$TransportationMode == 11, 1, 0)
+MarketCensus$HomeOffice[is.na(MarketCensus$HomeOffice)] &lt;- 0</code></pre>
+</div>
+<div id="mode-of-transportation" class="section level2">
+<h2>Mode of Transportation</h2>
+<p>We immediately see that this is an integer variable that needs to be translated to a categorical variable, where the categories should be “Driving”, “Biking”, “Walking”, and “Public Transit”. We see that this survey encodes for many things, so we will break it down as follows:</p>
+<ul>
+<li>“Driving” will code for “1”, “7” and “8” which stands for “Car, truck, or van”, “Taxicab”, and “Motorcycle”.</li>
+<li>“Biking” will code for “9” which stands for “Bicycle”.</li>
+<li>“Walking” will code for “10” which stands for “Walked”.</li>
+<li>“Public Transit” will code for “2”, “3”, “4”, “5” which stands for “Bus or trolley bus”, “Streetcar or trolley car”, “Subway or elevated”, and “Railroad”.</li>
+<li>The rest will be NA.</li>
+</ul>
+<pre class="r"><code>MarketCensus$TransportationMode &lt;- as.factor(MarketCensus$TransportationMode)
+levels(MarketCensus$TransportationMode) &lt;- c(&quot;Driving&quot;, &quot;Public Transit&quot;, &quot;Public Transit&quot;, 
+    &quot;Driving&quot;, &quot;Driving&quot;, &quot;Biking&quot;, &quot;Walking&quot;, &quot;Home Office&quot;, NA)</code></pre>
+</div>
+<div id="age-of-respondent" class="section level2">
+<h2>Age of Respondent</h2>
+<p>We Need to translate this into 5 factor levels in order for our sample to match our survey data. Also we will eliminate all samples with age less than 18 years old.</p>
+<pre class="r"><code>MarketCensus &lt;- subset(MarketCensus, subset = MarketCensus$Age &gt;= 18)
+MarketCensus$AgeBracket &lt;- NULL
+for (i in 1:nrow(MarketCensus)) if (MarketCensus$Age[i] &gt;= 18 &amp; MarketCensus$Age[i] &lt;= 
+    29) {
+    MarketCensus$AgeBracket[i] &lt;- &quot;18-29&quot;
+} else if (MarketCensus$Age[i] &gt;= 30 &amp; MarketCensus$Age[i] &lt;= 39) {
+    MarketCensus$AgeBracket[i] &lt;- &quot;30-39&quot;
+} else if (MarketCensus$Age[i] &gt;= 40 &amp; MarketCensus$Age[i] &lt;= 49) {
+    MarketCensus$AgeBracket[i] &lt;- &quot;40-49&quot;
+} else if (MarketCensus$Age[i] &gt;= 50 &amp; MarketCensus$Age[i] &lt;= 59) {
+    MarketCensus$AgeBracket[i] &lt;- &quot;50-59&quot;
+} else {
+    MarketCensus$AgeBracket[i] &lt;- &quot;60+&quot;
+}
+MarketCensus$AgeBracket &lt;- as.factor(MarketCensus$AgeBracket)</code></pre>
+</div>
+<div id="job-type" class="section level2">
+<h2>Job Type</h2>
+<p>We will classify the Job Type of the worker as follows:</p>
+<p><em>“Employee” will map to 1, 2, 3, 4, 5; or “Employee of Private Not for-profit”, “Employee of Private Non-Profit”, “Local Government Employee”, “State Government Employee”, and “Federal Government Employee” </em> “Entrepreneur” will map to 7; or “Self-Employed in own incorporated business” * “Freelancer” will map to 6; “Self-Employed in own not incorporated business” * “Other” will map to 8; or “Working without pay in family business” * We will drop data with COW status 9; or “Unemployed and last worked 5 years ago or more”</p>
+<pre class="r"><code>MarketCensus$ClassOfWorker &lt;- as.factor(MarketCensus$ClassOfWorker)
+levels(MarketCensus$ClassOfWorker) &lt;- c(&quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, 
+    &quot;Employee&quot;, &quot;Freelancer&quot;, &quot;Entrepreneur&quot;, &quot;Other&quot;, NA)</code></pre>
+<p>We have data relating to the person’s job as well. This data is too voluminous to discuss here in detil, but it breaks down as so:</p>
+<ul>
+<li>IT (Software Engineer, Web Developer, includes half Consulting): 1006-1200, 1240</li>
+<li>Consulting: NA</li>
+<li>PR, Marketing, Sales, Advertising: 40, 50, 60, 735, 2825, 4800, 4840-4930, 4965</li>
+<li>Design: 2630</li>
+<li>Project Management: NA</li>
+<li>Research: 1005, 735, 1220, 1600-1965</li>
+<li>Writing: 2840-2850</li>
+<li>Business Development (includes entrepreneurs, half consulting, and Project Management category): 510-726, 740</li>
+<li>Education: 2025, 2050, 2200-2550</li>
+<li>Higher Management: 10-20, 100-430</li>
+<li>Art: 500, 2600, 2700-2810, 2830, 2860-2920, 4000</li>
+<li>Other: 800-950, 1300-1550, 2000-2016, 2040, 2060-2160, 3000-3540, 3600-3955, 4010-4760, 4810-4830, 4940-4950, 5000-9830</li>
+</ul>
+<pre class="r"><code>MarketCensus$OccupationType &lt;- NULL
+for (i in 1:nrow(MarketCensus)) {
+    if (is.na(MarketCensus$Occupation[i])) {
+        MarketCensus$OccupationType[i] &lt;- NA
+    } else if ((MarketCensus$Occupation[i] &gt;= 1006 &amp; MarketCensus$Occupation[i] &lt;= 
+        1200) | MarketCensus$Occupation[i] == 1240) {
+        MarketCensus$OccupationType[i] &lt;- &quot;IT&quot;
+    } else if ((MarketCensus$Occupation[i] &gt;= 40 &amp; MarketCensus$Occupation[i] &lt;= 60) | 
+        MarketCensus$Occupation[i] == 735 | MarketCensus$Occupation[i] == 2825 | 
+        MarketCensus$Occupation[i] == 4800 | (MarketCensus$Occupation[i] &gt;= 4840 &amp; 
+        MarketCensus$Occupation[i] &lt;= 4930) | MarketCensus$Occupation[i] == 4965) {
+        MarketCensus$OccupationType[i] &lt;- &quot;PR, Marketing, Sales, Advertising&quot;
+    } else if (MarketCensus$Occupation[i] == 2630) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Design&quot;
+    } else if (MarketCensus$Occupation[i] == 1005 | MarketCensus$Occupation[i] == 735 | 
+        MarketCensus$Occupation[i] == 1220 | (MarketCensus$Occupation[i] &gt;= 1600 &amp; 
+        MarketCensus$Occupation[i] &lt;= 1965)) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Research&quot;
+    } else if (MarketCensus$Occupation[i] &gt;= 2840 &amp; MarketCensus$Occupation[i] &lt;= 2850) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Writing&quot;
+    } else if ((MarketCensus$Occupation[i] &gt;= 510 &amp; MarketCensus$Occupation[i] &lt;= 726) | 
+        MarketCensus$Occupation[i] == 740) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Business Development&quot;
+    } else if (MarketCensus$Occupation[i] == 2025 | MarketCensus$Occupation[i] == 2050 | 
+        (MarketCensus$Occupation[i] &gt;= 2200 &amp; MarketCensus$Occupation[i] &lt;= 2550)) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Education&quot;
+    } else if ((MarketCensus$Occupation[i] &gt;= 10 &amp; MarketCensus$Occupation[i] &lt;= 20) | 
+        (MarketCensus$Occupation[i] &gt;= 100 &amp; MarketCensus$Occupation[i] &lt;= 430)) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Higher Management&quot;
+    } else if (MarketCensus$Occupation[i] == 500 | MarketCensus$Occupation[i] == 2600 | 
+        (MarketCensus$Occupation[i] &gt;= 2700 &amp; MarketCensus$Occupation[i] &lt;= 2810) | 
+        MarketCensus$Occupation[i] == 2830 | (MarketCensus$Occupation[i] &gt;= 2860 &amp; 
+        MarketCensus$Occupation[i] &lt;= 2920) | MarketCensus$Occupation[i] == 4000) {
+        MarketCensus$OccupationType[i] &lt;- &quot;Art&quot;
+    } else {
+        MarketCensus$OccupationType[i] &lt;- &quot;Other&quot;
+    }
+}
+
+MarketCensus$OccupationType &lt;- as.factor(MarketCensus$OccupationType)</code></pre>
+</div>
+<div id="gender-1" class="section level2">
+<h2>Gender</h2>
+<p>For Gender, Male will encode to “1” which is “male” and Female will encode to “2” which is “female”.</p>
+<pre class="r"><code>MarketCensus$Sex &lt;- as.factor(MarketCensus$Sex)
+levels(MarketCensus$Sex) &lt;- c(&quot;Male&quot;, &quot;Female&quot;)</code></pre>
+</div>
+<div id="relationship-status-1" class="section level2">
+<h2>Relationship Status</h2>
+<p>We will encode Relationship Status as the following:</p>
+<ul>
+<li>Not Married will encode to “5” which represents “Never Married”</li>
+<li>Married will encode to “1” which represents “Married”</li>
+<li>Separated, Divorced, Widowed will encode to “2”, “3”, and “4” which represents “Widowed”, “Divorced”, and “Separated”.</li>
+<li>Other or NA will encode to NA.</li>
+</ul>
+<pre class="r"><code>MarketCensus$MaritalStatus &lt;- as.factor(MarketCensus$MaritalStatus)
+levels(MarketCensus$MaritalStatus) &lt;- c(&quot;Married&quot;, &quot;Separated, Divorced, Widowed&quot;, 
+    &quot;Separated, Divorced, Widowed&quot;, &quot;Separated, Divorced, Widowed&quot;, &quot;Not Married&quot;)</code></pre>
+</div>
+<div id="health-insurance-status" class="section level2">
+<h2>Health Insurance Status</h2>
+<p>Health Insurance will be encoded as below:</p>
+<ul>
+<li>“Health Insurance” will encode to “1” which represents “With health insurance coverage”.</li>
+<li>“No Health Insurance” will encode to “2” which represents “No Health Insurance Coverage”.</li>
+</ul>
+<pre class="r"><code>MarketCensus$HealthInsurance &lt;- as.factor(MarketCensus$HealthInsurance)
+levels(MarketCensus$HealthInsurance) &lt;- c(&quot;Health Insurance&quot;, &quot;No Health Insurance&quot;)</code></pre>
+</div>
+<div id="last-type-of-workspace" class="section level2">
+<h2>Last Type of Workspace</h2>
+<p>The only distinctions that the US Census makes in terms of your workspace is whether or not you work in a home office. This information is extracted from Mode Of Transportation variable, remember that we have already created this column called HomeOffice earlier on in the script.</p>
+<pre class="r"><code>MarketCensus$HomeOffice &lt;- as.factor(MarketCensus$HomeOffice)
+levels(MarketCensus$HomeOffice) &lt;- c(&quot;Not Home Office&quot;, &quot;Home Office&quot;)</code></pre>
+</div>
+<div id="education-level" class="section level2">
+<h2>Education Level</h2>
+<ul>
+<li>Doctoral or higher: 24</li>
+<li>Master: 22</li>
+<li>Bachelor: 21, 23</li>
+<li>High School: 16-20</li>
+<li>No Education: 01-15</li>
+<li>NA: NA</li>
+</ul>
+<pre class="r"><code>MarketCensus$EducationLevel[MarketCensus$EducationLevel == 21 | MarketCensus$EducationLevel == 
+    23] &lt;- 21
+MarketCensus$EducationLevel[MarketCensus$EducationLevel &gt;= 16 &amp; MarketCensus$EducationLevel &lt;= 
+    20] &lt;- 16
+MarketCensus$EducationLevel[MarketCensus$EducationLevel &gt;= 1 &amp; MarketCensus$EducationLevel &lt;= 
+    15] &lt;- 1
+MarketCensus$EducationLevel &lt;- as.factor(MarketCensus$EducationLevel)
+levels(MarketCensus$EducationLevel) &lt;- c(&quot;No Education&quot;, &quot;High School&quot;, &quot;Bachelor&quot;, 
+    &quot;Master&quot;, &quot;Doctoral or Higher&quot;)</code></pre>
+</div>
+<div id="travel-time-to-work" class="section level2">
+<h2>Travel Time to Work</h2>
+<p>In order to do this, we need to know where our Census folks live which is something we don’t know but I suspect we can simulate. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn’t allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:</p>
+<ul>
+<li>Obtain Population Estimates for all pertinent census tracts and determine how many people in our 1% sample will be in each census tract, namely n<sub>c</sub> where c denotes census tract.</li>
+<li>Obtain Average Income for all pertinent census tracts.</li>
+<li>Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it’s total population, assign to the next closest mean income census tract.</li>
+<li>Run this person’s location through Google Maps API according to their mode of transportation to determine transportation time.</li>
+</ul>
+<p>Assumptions:</p>
+<ul>
+<li>Almost all folks living within Carpinteria will be walking or biking to Coworking Space.</li>
+<li>Folks who live within proximity to Amtrak are more likely to take Amtrak which is very close to Coworking Space</li>
+</ul>
 <hr />
-<pre class="r"><code># In order to get the FIPS Code for Santa Barbara and Ventura Counties
-data(fips_codes)
-subset(fips_codes, county == &quot;Santa Barbara County&quot; | county == &quot;Ventura County&quot;)</code></pre>
-<pre><code>##     state state_code state_name county_code               county
-## 229    CA         06 California         083 Santa Barbara County
-## 243    CA         06 California         111       Ventura County</code></pre>
 <pre class="r"><code># Looks like SB County is 083 and Ventura County is 111
 
-# Now if we want to get population by Census Tract in Santa Barbara and Ventura Counties
-CensusPop &lt;- get_acs(geography = &quot;tract&quot;, 
-                     variables = &quot;B01003_001&quot;, 
-                     state = &quot;CA&quot;, 
-                     county = c(&quot;083&quot;,&quot;111&quot;))
-names(CensusPop)[names(CensusPop) == &quot;estimate&quot;] &lt;- &quot;Population&quot;
+# Now if we want to get population and average income by Census Tract in Santa
+# Barbara and Ventura Counties
+CensusPop &lt;- get_acs(geography = &quot;tract&quot;, variables = c(&quot;B01003_001&quot;, &quot;B19013_001E&quot;), 
+    state = &quot;CA&quot;, county = c(&quot;083&quot;, &quot;111&quot;))
+CensusPop &lt;- subset(CensusPop, select = -moe)
+CensusPop &lt;- CensusPop %&gt;% spread(variable, estimate)
+names(CensusPop) &lt;- c(&quot;GEOID&quot;, &quot;NAME&quot;, &quot;Population&quot;, &quot;AverageIncome&quot;)
+
+PopTotal &lt;- sum(CensusPop$Population)
+SampleTotal &lt;- nrow(MarketCensus)
+CensusPop$SampleSize &lt;- round((CensusPop$Population/PopTotal) * SampleTotal)
 
 # In order to get the latitude and longitude of the census tracts
 
@@ -324,7 +491,15 @@ CensusLoc &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/gaze
 CensusLoc$GEOID &lt;- as.character(CensusLoc$GEOID)
 CensusLoc$GEOID &lt;- paste(&quot;0&quot;, CensusLoc$GEOID, sep = &quot;&quot;)
 
-# Now we have all the CA census tracts geographic location. Let's try and only select the census tracts we need for our two counties. We know that CA code is 06, SB county code is 083, and Ventura county code is 111. GEOID is structured as STATE+COUNTY+TRACT (number of digits SS-CCC-TTTTTT). Please note that fread() above got rid of the leading 0 of the state ID. Also note that all of the GEOIDs we need are included in the Data Frame CensusPop. Let's try and join up the census population data and the census locations, knowing that all the GEOIDs we want are in CensusPop. Merge will only show the matches so it should work well.
+# Now we have all the CA census tracts geographic location. Let's try and only
+# select the census tracts we need for our two counties. We know that CA code is
+# 06, SB county code is 083, and Ventura county code is 111. GEOID is structured
+# as STATE+COUNTY+TRACT (number of digits SS-CCC-TTTTTT). Please note that
+# fread() above got rid of the leading 0 of the state ID. Also note that all of
+# the GEOIDs we need are included in the Data Frame CensusPop. Let's try and join
+# up the census population data and the census locations, knowing that all the
+# GEOIDs we want are in CensusPop. Merge will only show the matches so it should
+# work well.
 
 CensusPop &lt;- merge(x = CensusPop, y = CensusLoc, by = &quot;GEOID&quot;)
 
@@ -332,33 +507,31 @@ CensusPop &lt;- merge(x = CensusPop, y = CensusLoc, by = &quot;GEOID&quot;)
 CensusPop$GoogleInput &lt;- paste(CensusPop$INTPTLAT, CensusPop$INTPTLONG, sep = &quot;+&quot;)
 
 # Drop unnecessary columns
-CensusPop &lt;- subset(CensusPop, select = -c(variable, USPS, ALAND, AWATER))
+CensusPop &lt;- subset(CensusPop, select = -c(USPS, ALAND, AWATER))
 
-# We can now get the travel time to Carpinteria per census tract using Google Maps API for car, public transport, and bike. Please note that since there is a limit of 2,500 calls to Google Maps API per day, you may have problems with this in larger market areas. Make sure you have install.packages(gmapsdistance) and you have registered for a Google Maps API Key at https://developers.google.com/maps/documentation/distance-matrix/get-api-key#key. Then make sure you run the command set.api.key(&quot;YOUR KEY HERE&quot;) 
+# We can now get the travel time to Carpinteria per census tract using Google
+# Maps API for car, public transport, and bike. Please note that since there is a
+# limit of 2,500 calls to Google Maps API per day, you may have problems with
+# this in larger market areas. Make sure you have install.packages(gmapsdistance)
+# and you have registered for a Google Maps API Key at
+# https://developers.google.com/maps/documentation/distance-matrix/get-api-key#key.
+# Then make sure you run the command set.api.key('YOUR KEY HERE')
 
 
 tomorrow &lt;- as.character(Sys.Date() + 1)
-DriveTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                     destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;,
-                                     mode = &quot;driving&quot;,
-                                     arr_date = tomorrow,
-                                     arr_time = &quot;17:00:00&quot;)
+DriveTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;, 
+    mode = &quot;driving&quot;, arr_date = tomorrow, arr_time = &quot;17:00:00&quot;)
 
-BikeTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                    destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;,
-                                    mode = &quot;bicycling&quot;,
-                                    key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;,
-                                    arr_date = tomorrow,
-                                    arr_time = &quot;17:00:00&quot;)
+BikeTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;, 
+    mode = &quot;bicycling&quot;, key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;, arr_date = tomorrow, 
+    arr_time = &quot;17:00:00&quot;)
 
-TransitTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, 
-                                    destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;,
-                                    mode = &quot;transit&quot;,
-                                    key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;,
-                                    arr_date = tomorrow,
-                                    arr_time = &quot;17:00:00&quot;)
+TransitTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;, 
+    mode = &quot;transit&quot;, key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;, arr_date = tomorrow, 
+    arr_time = &quot;17:00:00&quot;)
 
-# DriveTime is a list with three data frames (Time, Distance, Status). Let's get Time over to the CensusPop Data Frame as DrivingTime variable.
+# DriveTime is a list with three data frames (Time, Distance, Status). Let's get
+# Time over to the CensusPop Data Frame as DrivingTime variable.
 
 DriveTime$Time$or &lt;- as.character(DriveTime$Time$or)
 names(DriveTime$Time) &lt;- c(&quot;GoogleInput&quot;, &quot;DrivingTime&quot;)
@@ -373,24 +546,28 @@ names(TransitTime$Time) &lt;- c(&quot;GoogleInput&quot;, &quot;TransitTime&quot;
 CensusPop &lt;- merge(x = CensusPop, y = TransitTime$Time, by = &quot;GoogleInput&quot;)
 
 
-# Now we must filter out ONLY the market areas we want to look at. We wish to eliminate Santa Maria area, inland Ventura county, and any farmland areas where agriculture are the biggest industries. Also, these areas are simply too far away and not as easily accessible so it's too difficult to target folks from these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port Hueneme, and Moorpark for good measure.
+# Now we must filter out ONLY the market areas we want to look at. We wish to
+# eliminate Santa Maria area, inland Ventura county, and any farmland areas where
+# agriculture are the biggest industries. Also, these areas are simply too far
+# away and not as easily accessible so it's too difficult to target folks from
+# these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port
+# Hueneme, and Moorpark for good measure.
 
-PUMATractDecoder &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt&quot;, colClasses = c(&quot;character&quot;, &quot;character&quot;, &quot;character&quot;, &quot;character&quot;))
-PUMATractDecoder &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot; &amp; 
-                                    (PUMATractDecoder$PUMA5CE == &quot;08303&quot; | 
-                                     PUMATractDecoder$PUMA5CE == &quot;11104&quot; | 
-                                     PUMATractDecoder$PUMA5CE == &quot;11103&quot; | 
-                                     PUMATractDecoder$PUMA5CE == &quot;11106&quot;), ]
+PUMATractDecoder &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt&quot;, 
+    colClasses = c(&quot;character&quot;, &quot;character&quot;, &quot;character&quot;, &quot;character&quot;))
+PUMATractDecoder &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot; &amp; (PUMATractDecoder$PUMA5CE == 
+    &quot;08303&quot; | PUMATractDecoder$PUMA5CE == &quot;11104&quot; | PUMATractDecoder$PUMA5CE == &quot;11103&quot; | 
+    PUMATractDecoder$PUMA5CE == &quot;11106&quot;), ]
 
 
-PUMATractDecoder$GEOID &lt;- paste(PUMATractDecoder$STATEFP, 
-                                PUMATractDecoder$COUNTYFP, 
-                                PUMATractDecoder$TRACTCE,
-                                sep = &quot;&quot;)
+PUMATractDecoder$GEOID &lt;- paste(PUMATractDecoder$STATEFP, PUMATractDecoder$COUNTYFP, 
+    PUMATractDecoder$TRACTCE, sep = &quot;&quot;)
 
 CensusPop &lt;- merge(x = CensusPop, y = PUMATractDecoder, by = &quot;GEOID&quot;)
 # Write it to an excel file to analyze or reference later
 write.table(CensusPop, file = &quot;SB-Ventura Census Tract Populations.txt&quot;, row.names = FALSE)</code></pre>
+<p>MarketCensus &lt;- read.csv(file = “Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv”)</p>
+</div>
 </div>
 
 

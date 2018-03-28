@@ -39,18 +39,16 @@ On slide 51 we can see that job status could play a role in who the makeup of me
 * Freelancer: 32%
 * Other: 5%
 
-Moving over to slide 55, we further see the following breakdown of Job type:
+Moving over to slide 55, we further see the following breakdown of Job type. Please note that there were separate categories for Project Management (4%) and Consulting (15%) however those do not correlate to any jobs found in the US Census Occupation variable. As a result, I have moved Project Management's share of the overall total in halves to IT and Business Development. I have spread Consulting around evenly to IT, PR, Design, Research, Business Development, and Higher Management.
 
-* IT (Software Engineer, Web Developer): 27%
-* Consulting: 15%
-* PR, Marketing, Sales, Advertising: 5%
-* Design: 7%
-* Project Management: 4%
-* Research: 4%
+* IT (Software Engineer, Web Developer): 31.5%
+* PR, Marketing, Sales, Advertising: 7.5%
+* Design: 9.5%
+* Research: 6.5%
 * Writing: 5%
-* Business Development (includes entrepreneurs): 3%
+* Business Development (includes entrepreneurs): 7.5%
 * Education: 5%
-* Higher Management: 5%
+* Higher Management: 7.5%
 * Art: 3%
 * Other: 16%
 
@@ -58,10 +56,9 @@ Moving over to slide 55, we further see the following breakdown of Job type:
 As reported by coworking spaces, the average share of female members sits at 38%; as reported by the individual member respondents, 41% of them were female. Let's sit at a happy medium of 40%.
 
 ### Relationship Status
-In the US, relationship status of survey respondents were as follows:
+In the US, relationship status of survey respondents were as follows. However, the US Census does not distinguish between Single and In a Relationship so I have combined these categories into a single "Unmarried" category:
 
-* Single: 19%
-* In a relationship, unmarried: 22%
+* In a relationship, unmarried: 41%
 * Married: 47%
 * Separated, Divorced, Widowed: 7%
 * Other or NA: 5%
@@ -74,22 +71,16 @@ In addition to marital status, [The 2017 Global Coworking Survey](https://www.sl
 * 3 children: 7%
 
 ### Health Insurance of members
-In the US, the following breakdown of health insurance per respondent was as follows:
+In the US, the following breakdown of health insurance per respondent was as follows. Please note that the US Census only differentiates between "Health Insurance" and "No Health Insurance" and as a result I have rolled "Other" and NA into "No Health Insurance":
 
-* Enhanced Health Insurance: 35%
-* Basic Health Insurance: 52%
-* No Health Insurance: 9%
-* Other: 1%
-* NA: 3%
+* Health Insurance: 87%
+* No Health Insurance: 13%
 
 ### Last place of work - before starting coworking
-In the US, the following breakdown illustrates where respondents worked before deciding to go to a coworking space:
+In the US, the following breakdown illustrates where respondents worked before deciding to go to a coworking space. However, the only information we can glean about this category from the US Census is whether or not somebody worked in a Home Office or not. As a result, I will boil down "Traditional Office", "Coffee Shop", "Small Shared Office Community", and "No Fixed Location" into "Not Home Office":
 
 * Home Office: 44%
-* Traditional Office: 37%
-* Coffee Shop: 11%
-* Small Shared Office Community: 2%
-* No Fixed Location: 6%
+* Not Home Office: 56%
 
 ### Highest Level of School Education
 As seen in [The 2017 Global Coworking Survey](https://www.slideshare.net/carstenfoertsch/members-of-coworking-spaces-demographic-background-global-coworking-survey-80058366), we also have information on education levels of survey respondents on slide 5:
@@ -146,12 +137,14 @@ Checking out the [PUMS Data Dictionary](https://www2.census.gov/programs-surveys
 
 Before you start, make sure you have the following packages installed. Feel free to copy and paste the following into your console:
 
+
 install.packages("tidycensus")
 install.packages("tidyverse")
 install.packages("dplyr")
 install.packages("data.table")
 install.packages("bit64")
 install.packages("gmapsdistance")
+
 
 We can get a sample of data from our market areas by going to the [PUMS Data Website](https://factfinder.census.gov/faces/nav/jsf/pages/searchresults.xhtml?refresh=t) and following these steps:
 
@@ -163,6 +156,7 @@ We can get a sample of data from our market areas by going to the [PUMS Data Web
 
 ```{r,echo=FALSE,message=FALSE,warning=FALSE}
 library(knitr)
+library(formatR)
 opts_chunk$set(tidy.opts=list(width.cutoff=80),tidy=TRUE)
 ```
 
@@ -172,10 +166,10 @@ MarketCensus <- Census[Census$PUMA == 08303 | Census$PUMA == 11104 | Census$PUMA
 
 MarketCensus <- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
 
-write.csv(MarketCensus, file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv")
+write.csv(MarketCensus, file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv", row.names = FALSE)
 ```
 
-I now recommend you to delete the "ss16pca.csv" file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv".
+I now recommend that you delete the "ss16pca.csv" file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv".
 
 # Cleaning the Data
 Now that we have all the data we could possibly want, it's time for us to clean it up and make it usable. Since we know that we will have to create our own training data based off of the results of the 2016 Global Coworking Survey, we know we basically have to transform our data to look like the results of that survey since that's the kind of data we'll be constructing anyway. We'll start with the names:
@@ -197,6 +191,202 @@ We immediately see that this is an integer variable that needs to be translated 
 * "Biking" will code for "9" which stands for "Bicycle".
 * "Walking" will code for "10" which stands for "Walked".
 * "Public Transit" will code for "2", "3", "4", "5" which stands for "Bus or trolley bus", "Streetcar or trolley car", "Subway or elevated", and "Railroad".
+* The rest will be NA.
+
+```{r}
+MarketCensus$TransportationMode <- as.factor(MarketCensus$TransportationMode)
+levels(MarketCensus$TransportationMode) <- c("Driving", "Public Transit", "Public Transit",
+                                             "Driving", "Driving", "Biking", "Walking", 
+                                             "Home Office", NA)
+```
+
+## Age of Respondent
+We Need to translate this into 5 factor levels in order for our sample to match our survey data. Also we will eliminate all samples with age less than 18 years old.
+```{r}
+MarketCensus <- subset(MarketCensus, subset = MarketCensus$Age >= 18)
+MarketCensus$AgeBracket <- NULL
+for (i in 1:nrow(MarketCensus))
+if (MarketCensus$Age[i] >= 18 & MarketCensus$Age[i] <= 29) {
+  MarketCensus$AgeBracket[i] <- "18-29"
+} else if (MarketCensus$Age[i] >= 30 & MarketCensus$Age[i] <= 39) {
+  MarketCensus$AgeBracket[i] <- "30-39"
+} else if (MarketCensus$Age[i] >= 40 & MarketCensus$Age[i] <= 49) {
+  MarketCensus$AgeBracket[i] <- "40-49"
+} else if (MarketCensus$Age[i] >= 50 & MarketCensus$Age[i] <= 59) {
+  MarketCensus$AgeBracket[i] <- "50-59"
+} else {
+  MarketCensus$AgeBracket[i] <- "60+"
+}
+MarketCensus$AgeBracket <- as.factor(MarketCensus$AgeBracket)
+```
+
+## Job Type
+We will classify the Job Type of the worker as follows:
+
+*"Employee" will map to 1, 2, 3, 4, 5; or "Employee of Private Not for-profit", "Employee of Private Non-Profit", "Local Government Employee", "State Government Employee", and "Federal Government Employee"
+* "Entrepreneur" will map to 7; or "Self-Employed in own incorporated business"
+* "Freelancer" will map to 6; "Self-Employed in own not incorporated business"
+* "Other" will map to 8; or "Working without pay in family business"
+* We will drop data with COW status 9; or "Unemployed and last worked 5 years ago or more"
+
+```{r}
+MarketCensus$ClassOfWorker <- as.factor(MarketCensus$ClassOfWorker)
+levels(MarketCensus$ClassOfWorker) <- c("Employee", "Employee", "Employee", "Employee", "Employee", "Freelancer", "Entrepreneur", "Other", NA)
+```
+
+We have data relating to the person's job as well. This data is too voluminous to discuss here in detil, but it breaks down as so:
+
+* IT (Software Engineer, Web Developer, includes half Consulting): 1006-1200, 1240
+* Consulting: NA
+* PR, Marketing, Sales, Advertising: 40, 50, 60, 735, 2825, 4800, 4840-4930, 4965
+* Design: 2630
+* Project Management: NA
+* Research: 1005, 735, 1220, 1600-1965
+* Writing: 2840-2850
+* Business Development (includes entrepreneurs, half consulting, and Project Management category): 510-726, 740
+* Education: 2025, 2050, 2200-2550
+* Higher Management: 10-20, 100-430
+* Art: 500, 2600, 2700-2810, 2830, 2860-2920, 4000
+* Other: 800-950, 1300-1550, 2000-2016, 2040, 2060-2160, 3000-3540, 3600-3955, 4010-4760, 4810-4830, 4940-4950, 5000-9830
+
+```{r}
+MarketCensus$OccupationType <- NULL
+for (i in 1:nrow(MarketCensus)) {
+if (is.na(MarketCensus$Occupation[i])) {
+  MarketCensus$OccupationType[i] <- NA
+} else if ((MarketCensus$Occupation[i] >= 1006 & MarketCensus$Occupation[i] <= 1200) |
+    MarketCensus$Occupation[i] == 1240) {
+  MarketCensus$OccupationType[i] <- "IT"
+} else if ((MarketCensus$Occupation[i] >= 40 & MarketCensus$Occupation[i] <= 60) |
+           MarketCensus$Occupation[i] == 735 | 
+           MarketCensus$Occupation[i] == 2825 |
+           MarketCensus$Occupation[i] == 4800 |
+           (MarketCensus$Occupation[i] >= 4840 & MarketCensus$Occupation[i] <= 4930) |
+           MarketCensus$Occupation[i] == 4965) {
+  MarketCensus$OccupationType[i] <- "PR, Marketing, Sales, Advertising"
+} else if (MarketCensus$Occupation[i] == 2630) {
+  MarketCensus$OccupationType[i] <- "Design"
+} else if (MarketCensus$Occupation[i] == 1005 |
+           MarketCensus$Occupation[i] == 735 |
+           MarketCensus$Occupation[i] == 1220 |
+           (MarketCensus$Occupation[i] >= 1600 & MarketCensus$Occupation[i] <= 1965)) {
+  MarketCensus$OccupationType[i] <- "Research"
+} else if (MarketCensus$Occupation[i] >= 2840 & MarketCensus$Occupation[i] <= 2850) {
+  MarketCensus$OccupationType[i] <- "Writing"
+} else if ((MarketCensus$Occupation[i] >= 510 & MarketCensus$Occupation[i] <= 726) |
+           MarketCensus$Occupation[i] == 740) {
+  MarketCensus$OccupationType[i] <- "Business Development"
+} else if (MarketCensus$Occupation[i] == 2025 |
+           MarketCensus$Occupation[i] == 2050 |
+           (MarketCensus$Occupation[i] >= 2200 & MarketCensus$Occupation[i] <= 2550)) {
+  MarketCensus$OccupationType[i] <- "Education"
+} else if ((MarketCensus$Occupation[i] >= 10 & MarketCensus$Occupation[i] <= 20) |
+           (MarketCensus$Occupation[i] >= 100 & MarketCensus$Occupation[i] <= 430)) {
+  MarketCensus$OccupationType[i] <- "Higher Management"
+} else if (MarketCensus$Occupation[i] == 500 |
+           MarketCensus$Occupation[i] == 2600 |
+           (MarketCensus$Occupation[i] >= 2700 & MarketCensus$Occupation[i] <= 2810) |
+           MarketCensus$Occupation[i] == 2830 |
+           (MarketCensus$Occupation[i] >= 2860 & MarketCensus$Occupation[i] <= 2920) |
+           MarketCensus$Occupation[i] == 4000) {
+  MarketCensus$OccupationType[i] <- "Art"
+} else {
+  MarketCensus$OccupationType[i] <- "Other"
+}
+}
+
+MarketCensus$OccupationType <- as.factor(MarketCensus$OccupationType)
+```
+
+## Gender
+For Gender, Male will encode to "1" which is "male" and Female will encode to "2" which is "female".
+
+```{r}
+MarketCensus$Sex <- as.factor(MarketCensus$Sex)
+levels(MarketCensus$Sex) <- c("Male", "Female")
+```
+
+## Relationship Status
+We will encode Relationship Status as the following:
+
+* Not Married will encode to "5" which represents "Never Married"
+* Married will encode to "1" which represents "Married"
+* Separated, Divorced, Widowed will encode to "2", "3", and "4" which represents "Widowed", "Divorced", and "Separated".
+* Other or NA will encode to NA.
+
+```{r}
+MarketCensus$MaritalStatus <- as.factor(MarketCensus$MaritalStatus)
+levels(MarketCensus$MaritalStatus) <- c("Married", "Separated, Divorced, Widowed", "Separated, Divorced, Widowed", "Separated, Divorced, Widowed", "Not Married")
+```
+
+## Health Insurance Status
+Health Insurance will be encoded as below:
+
+* "Health Insurance" will encode to "1" which represents "With health insurance coverage".
+* "No Health Insurance" will encode to "2" which represents "No Health Insurance Coverage".
+
+```{r}
+MarketCensus$HealthInsurance <- as.factor(MarketCensus$HealthInsurance)
+levels(MarketCensus$HealthInsurance) <- c("Health Insurance", "No Health Insurance")
+```
+
+## Last Type of Workspace
+The only distinctions that the US Census makes in terms of your workspace is whether or not you work in a home office. This information is extracted from Mode Of Transportation variable, remember that we have already created this column called HomeOffice earlier on in the script.
+
+```{r}
+MarketCensus$HomeOffice <- as.factor(MarketCensus$HomeOffice)
+levels(MarketCensus$HomeOffice) <- c("Not Home Office", "Home Office")
+```
+
+##Education Level
+* Doctoral or higher: 24
+* Master: 22
+* Bachelor: 21, 23
+* High School: 16-20
+* No Education: 01-15
+* NA: NA
+
+```{r}
+MarketCensus$EducationLevel[MarketCensus$EducationLevel == 21 | 
+                            MarketCensus$EducationLevel == 23] <- 21
+MarketCensus$EducationLevel[MarketCensus$EducationLevel >= 16 &
+                            MarketCensus$EducationLevel <= 20] <- 16
+MarketCensus$EducationLevel[MarketCensus$EducationLevel >= 1 &
+                            MarketCensus$EducationLevel <= 15] <- 1
+MarketCensus$EducationLevel <- as.factor(MarketCensus$EducationLevel)
+levels(MarketCensus$EducationLevel) <- c("No Education", "High School", "Bachelor", "Master", "Doctoral or Higher")
+```
+
+## Relative Yearly Income Level
+Since the Coworking Survey doesn't include any actual numbers to describe the relative income distribution of their respondents, I will in this case translate the income of the US Census respondents into classes using information from (Investopedia)[https://www.investopedia.com/financial-edge/0912/which-income-class-are-you.aspx].
+
+* "Very High" will map to Upper Class which is $350,000+
+* "Rather High" will map to Upper Middle Class which ranges between $113,001 - $350,000
+* "Somewhere in the Middle" will map to the Middle Middle Class, ranging between $47,178 - $113,000
+* "Rather Low" will map to the Lower Middle Class, ranging between $18,871 - $47,177
+* "Very Low" will map to the poverty level, or $0 - $18,870
+* NA: NA
+
+```{r}
+
+```
+
+## Travel Time to Work
+In order to do this, we need to know where our Census folks live which is something we don't know but I suspect we can simulate. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn't allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:
+
+* Obtain Population Estimates for all pertinent census tracts and determine how many people in our 1% sample will be in each census tract, namely n~c~ where c denotes census tract.
+* Obtain Average Income for all pertinent census tracts.
+* Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it's total population, assign to the next closest mean income census tract.
+* Run this person's location through Google Maps API according to their mode of transportation to determine transportation time. 
+
+Assumptions:
+
+* Almost all folks living within Carpinteria will be walking or biking to Coworking Space.
+* Folks who live within proximity to Amtrak are more likely to take Amtrak which is very close to Coworking Space
+
+```{r}
+
+```
 
 --------------------------------------------------------
 
@@ -210,17 +400,20 @@ library(gmapsdistance)
 census_api_key("baa4385d952532460bbc284b6763cf9d3fe75e31")
 ```
 ```{r, warning = FALSE, message = FALSE}
-# In order to get the FIPS Code for Santa Barbara and Ventura Counties
-data(fips_codes)
-subset(fips_codes, county == "Santa Barbara County" | county == "Ventura County")
 # Looks like SB County is 083 and Ventura County is 111
 
-# Now if we want to get population by Census Tract in Santa Barbara and Ventura Counties
+# Now if we want to get population and average income by Census Tract in Santa Barbara and Ventura Counties
 CensusPop <- get_acs(geography = "tract", 
-                     variables = "B01003_001", 
+                     variables = c("B01003_001", "B19013_001E"), 
                      state = "CA", 
                      county = c("083","111"))
-names(CensusPop)[names(CensusPop) == "estimate"] <- "Population"
+CensusPop <- subset(CensusPop, select = -moe)
+CensusPop <- CensusPop %>% spread(variable, estimate)
+names(CensusPop) <- c("GEOID", "NAME", "Population", "AverageIncome")
+
+PopTotal <- sum(CensusPop$Population)
+SampleTotal <- nrow(MarketCensus)
+CensusPop$SampleSize <- round((CensusPop$Population/PopTotal)*SampleTotal)
 
 # In order to get the latitude and longitude of the census tracts
 
@@ -236,7 +429,7 @@ CensusPop <- merge(x = CensusPop, y = CensusLoc, by = "GEOID")
 CensusPop$GoogleInput <- paste(CensusPop$INTPTLAT, CensusPop$INTPTLONG, sep = "+")
 
 # Drop unnecessary columns
-CensusPop <- subset(CensusPop, select = -c(variable, USPS, ALAND, AWATER))
+CensusPop <- subset(CensusPop, select = -c(USPS, ALAND, AWATER))
 
 # We can now get the travel time to Carpinteria per census tract using Google Maps API for car, public transport, and bike. Please note that since there is a limit of 2,500 calls to Google Maps API per day, you may have problems with this in larger market areas. Make sure you have install.packages(gmapsdistance) and you have registered for a Google Maps API Key at https://developers.google.com/maps/documentation/distance-matrix/get-api-key#key. Then make sure you run the command set.api.key("YOUR KEY HERE") 
 
@@ -272,7 +465,7 @@ BikeTime$Time$or <- as.character(BikeTime$Time$or)
 names(BikeTime$Time) <- c("GoogleInput", "BikingTime")
 CensusPop <- merge(x = CensusPop, y = BikeTime$Time, by = "GoogleInput")
 
-TransitTime$Time$or <- as.character(TransitTime$Time$or)
+TransitTime$Time$or <- as.character(TransitTime$Time$or) 
 names(TransitTime$Time) <- c("GoogleInput", "TransitTime")
 CensusPop <- merge(x = CensusPop, y = TransitTime$Time, by = "GoogleInput")
 
@@ -295,4 +488,8 @@ PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP,
 CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
 # Write it to an excel file to analyze or reference later
 write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt", row.names = FALSE)
+
 ```
+
+
+MarketCensus <- read.csv(file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv")

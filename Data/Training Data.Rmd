@@ -1,0 +1,41 @@
+---
+title: "Creating Training Data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Creating Training Data
+In order to run a successful scoring system, we must create a training set of data. In order to do this, I will create a data set of 100 observations using the breakdown of the 2017 Global Coworking Survey and each assign them a "1" in a new category called "CoworkingMember". This indicates that these people are indeed customers of coworking spaces. I will then take the total population of California and divide that by the number of coworking space members in the state of California. Multiplying that number by 100, we should get the total number of observations of non-coworking individuals in our training data set. That number will be big enough that we shouldn't see problems with bias in sample size, so we will extract at random that number of samples from our huge file of 1% of the California population. These will have assignments of "0" in the "CoworkingMember" column. Our training data should then be complete, with the same ratio of coworking members to non-coworking members that we see in real life.
+
+Alternatively, should we want to make a less biased sample size, we could create more than 100 observations of CoworkingMember set to 1 and then attach that to the full 300,000 count sample of the population of California.
+
+## Creating Coworker Member Profiles
+### Mode of Transportation and Distance to Coworking Space
+Mode of Transportation should be pretty easy to simulate. We will make 51 drivers, 22 cyclists, 19 walkers, and 8 Public Transportation Users.
+```{r}
+TransportationMode <- c(rep("Driving", times = 51), rep("Public Transit", times = 8), rep("Biking", times = 22), rep("Walking", times = 19))
+```
+
+Distance to Coworking Space is tough. 
+```{r}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+search_business <- function(parameters){
+
+  res <- GET("https://api.yelp.com/v3/businesses/search",
+      add_headers(Authorization = "Bearer C0l6Ro0MBtt5NqPLHsyc6k7xaYzYx6f42SlAicQOPpONtBwAK16ieUIUFa0BfgPJEuUb4vjDAWXebnK5OpsT_JmZBYnuVlludaltQKG1V8tmv3T2LcRzYbcop7G"),
+      query = parameters)
+
+  fromJSON(content(res, type = "text"))
+}
+
+coworking <- search_business(parameters = list(term = "coworking space",
+                                                        location = "California"))
+
+
+```

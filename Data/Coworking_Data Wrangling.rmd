@@ -295,6 +295,7 @@ if (is.na(MarketCensus$Occupation[i])) {
 }
 }
 
+MarketCensus$OccupationType[MarketCensus$ClassOfWorker == "Entrepreneur"] <- "Business Development"
 MarketCensus$OccupationType <- as.factor(MarketCensus$OccupationType)
 ```
 
@@ -361,32 +362,37 @@ levels(MarketCensus$EducationLevel) <- c("No Education", "High School", "Bachelo
 Since the Coworking Survey doesn't include any actual numbers to describe the relative income distribution of their respondents, I will in this case translate the income of the US Census respondents into classes using information from (Investopedia)[https://www.investopedia.com/financial-edge/0912/which-income-class-are-you.aspx].
 
 * "Very High" will map to Upper Class which is $350,000+
-* "Rather High" will map to Upper Middle Class which ranges between $113,001 - $350,000
+* "Rather High" will map to Upper Middle Class which ranges between $113,001 - $349,999
 * "Somewhere in the Middle" will map to the Middle Middle Class, ranging between $47,178 - $113,000
 * "Rather Low" will map to the Lower Middle Class, ranging between $18,871 - $47,177
 * "Very Low" will map to the poverty level, or $0 - $18,870
 * NA: NA
 
 ```{r}
-
+MarketCensus$TotalIncome <- MarketCensus$TotalIncome*1.007588
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome <= 18870] <- "Very Low"
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome <= 47177 &
+                         MarketCensus$TotalIncome >= 18871] <- "Rather Low"
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome <= 113000 &
+                         MarketCensus$TotalIncome >= 47178] <- "Somewhere In The Middle"
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome <= 349999 &
+                         MarketCensus$TotalIncome >= 113001] <- "Rather High"
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome >= 350000] <- "Very High"
+MarketCensus$RelativeIncome <- as.factor(MarketCensus$RelativeIncome)
 ```
 
 ## Travel Time to Work
-In order to do this, we need to know where our Census folks live which is something we don't know but I suspect we can simulate. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn't allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:
+In order to do this, we need to know where our Census folks live which is something we don't know; however I suspect we can simulate this information. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn't allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:
 
 * Obtain Population Estimates for all pertinent census tracts and determine how many people in our 1% sample will be in each census tract, namely n~c~ where c denotes census tract.
 * Obtain Average Income for all pertinent census tracts.
-* Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it's total population, assign to the next closest mean income census tract.
+* Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it's total population already full, assign to the next closest mean income census tract.
 * Run this person's location through Google Maps API according to their mode of transportation to determine transportation time. 
 
 Assumptions:
 
 * Almost all folks living within Carpinteria will be walking or biking to Coworking Space.
 * Folks who live within proximity to Amtrak are more likely to take Amtrak which is very close to Coworking Space
-
-```{r}
-
-```
 
 --------------------------------------------------------
 
@@ -399,8 +405,9 @@ library(bit64)
 library(gmapsdistance)
 census_api_key("baa4385d952532460bbc284b6763cf9d3fe75e31")
 ```
-```{r, warning = FALSE, message = FALSE}
-# Looks like SB County is 083 and Ventura County is 111
+### Assigning Samples to Census Tracts
+```{r}
+# Looks like SB County is FIPS Code 083 and Ventura County is 111
 
 # Now if we want to get population and average income by Census Tract in Santa Barbara and Ventura Counties
 CensusPop <- get_acs(geography = "tract", 
@@ -411,10 +418,109 @@ CensusPop <- subset(CensusPop, select = -moe)
 CensusPop <- CensusPop %>% spread(variable, estimate)
 names(CensusPop) <- c("GEOID", "NAME", "Population", "AverageIncome")
 
-PopTotal <- sum(CensusPop$Population)
-SampleTotal <- nrow(MarketCensus)
-CensusPop$SampleSize <- round((CensusPop$Population/PopTotal)*SampleTotal)
+# Now we must filter out ONLY the market areas we want to look at. We wish to eliminate Santa Maria area, inland Ventura county, and any farmland areas where agriculture are the biggest industries. Also, these areas are simply too far away and not as easily accessible so it's too difficult to target folks from these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port Hueneme, and Moorpark for good measure.
 
+PUMATractDecoder <- fread("https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt", colClasses = c("character", "character", "character", "character"))
+PUMATractDecoder <- PUMATractDecoder[PUMATractDecoder$STATEFP == "06" & 
+                                    (PUMATractDecoder$PUMA5CE == "08303" | 
+                                     PUMATractDecoder$PUMA5CE == "11104" | 
+                                     PUMATractDecoder$PUMA5CE == "11103" | 
+                                     PUMATractDecoder$PUMA5CE == "11106"), ]
+
+
+PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP, 
+                                PUMATractDecoder$COUNTYFP, 
+                                PUMATractDecoder$TRACTCE,
+                                sep = "")
+
+CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
+
+CensusPop$SampleCount <- 0
+
+
+MarketCensusSB <- subset(MarketCensus, subset = MarketCensus$PUMA == 8303)
+MarketCensus11103 <- subset(MarketCensus, subset = MarketCensus$PUMA == 11103)
+MarketCensus11104 <- subset(MarketCensus, subset = MarketCensus$PUMA == 11104)
+MarketCensus11106 <- subset(MarketCensus, subset = MarketCensus$PUMA == 11106)
+
+CensusPop$ID <- c(1:nrow(CensusPop))
+CensusSampleCounterSB <- subset(CensusPop, subset = PUMA5CE == "08303")
+CensusSampleCounter11103 <- subset(CensusPop, subset = PUMA5CE == "11103")
+CensusSampleCounter11104 <- subset(CensusPop, subset = PUMA5CE == "11104")
+CensusSampleCounter11106 <- subset(CensusPop, subset = PUMA5CE == "11106")
+
+PopTotalSB <- sum(CensusSampleCounterSB$Population)
+SampleTotalSB <- nrow(MarketCensusSB)
+CensusSampleCounterSB$SampleSize <- ceiling((CensusSampleCounterSB$Population/PopTotalSB)*SampleTotalSB)
+
+PopTotal11103 <- sum(CensusSampleCounter11103$Population)
+SampleTotal11103 <- nrow(MarketCensus11103)
+CensusSampleCounter11103$SampleSize <- ceiling((CensusSampleCounter11103$Population/PopTotal11103)*SampleTotal11103)
+
+PopTotal11104 <- sum(CensusSampleCounter11104$Population)
+SampleTotal11104 <- nrow(MarketCensus11104)
+CensusSampleCounter11104$SampleSize <- ceiling((CensusSampleCounter11104$Population/PopTotal11104)*SampleTotal11104)
+
+PopTotal11106 <- sum(CensusSampleCounter11106$Population)
+SampleTotal11106 <- nrow(MarketCensus11106)
+CensusSampleCounter11106$SampleSize <- ceiling((CensusSampleCounter11106$Population/PopTotal11106)*SampleTotal11106)
+
+for (i in 1: nrow(MarketCensusSB)) { 
+if (is.na(MarketCensusSB$TotalIncome[i])) {
+  MarketCensusSB$Location[i] <- NA
+  } else {
+    MarketCensusSB$Location[i] <- CensusSampleCounterSB$ID[which.min(abs(MarketCensusSB$TotalIncome[i] - CensusSampleCounterSB$AverageIncome))]
+    CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]] <- CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]] + 1
+    if (CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]] >= CensusSampleCounterSB$SampleSize[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]]) {
+      CensusSampleCounterSB <- subset(CensusSampleCounterSB, subset = CensusSampleCounterSB$ID != MarketCensusSB$Location[i])
+    }
+    }
+}
+
+for (i in 1: nrow(MarketCensus11103)) { 
+  if (is.na(MarketCensus11103$TotalIncome[i])) {
+    MarketCensus11103$Location[i] <- NA
+  } else {
+    MarketCensus11103$Location[i] <- CensusSampleCounter11103$ID[which.min(abs(MarketCensus11103$TotalIncome[i] - CensusSampleCounter11103$AverageIncome))]
+    CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]] <- CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]] + 1
+    if (CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]] >= CensusSampleCounter11103$SampleSize[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]]) {
+      CensusSampleCounter11103 <- subset(CensusSampleCounter11103, subset = CensusSampleCounter11103$ID != MarketCensus11103$Location[i])
+    }
+  }
+}
+
+for (i in 1: nrow(MarketCensus11104)) { 
+  if (is.na(MarketCensus11104$TotalIncome[i])) {
+    MarketCensus11104$Location[i] <- NA
+  } else {
+    MarketCensus11104$Location[i] <- CensusSampleCounter11104$ID[which.min(abs(MarketCensus11104$TotalIncome[i] - CensusSampleCounter11104$AverageIncome))]
+    CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]] <- CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]] + 1
+    if (CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]] >= CensusSampleCounter11104$SampleSize[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]]) {
+      CensusSampleCounter11104 <- subset(CensusSampleCounter11104, subset = CensusSampleCounter11104$ID != MarketCensus11104$Location[i])
+    }
+  }
+}
+
+for (i in 1: nrow(MarketCensus11106)) { 
+  if (is.na(MarketCensus11106$TotalIncome[i])) {
+    MarketCensus11106$Location[i] <- NA
+  } else {
+    MarketCensus11106$Location[i] <- CensusSampleCounter11106$ID[which.min(abs(MarketCensus11106$TotalIncome[i] - CensusSampleCounter11106$AverageIncome))]
+    CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]] <- CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]] + 1
+    if (CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]] >= CensusSampleCounter11106$SampleSize[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]]) {
+      CensusSampleCounter11106 <- subset(CensusSampleCounter11106, subset = CensusSampleCounter11106$ID != MarketCensus11106$Location[i])
+    }
+  }
+}
+
+MarketCensus <- rbind(MarketCensusSB, MarketCensus11103, MarketCensus11104, MarketCensus11106)
+for(i in 1:nrow(MarketCensus)) {
+  MarketCensus$Tract[i] <- CensusPop$NAME[MarketCensus$Location[i] == CensusPop$ID]
+}
+
+```
+### Obtaining Drive Time Data
+```{r, warning = FALSE, message = FALSE}
 # In order to get the latitude and longitude of the census tracts
 
 CensusLoc <- fread("https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2017_Gazetteer/2017_gaz_tracts_06.txt")
@@ -455,6 +561,13 @@ TransitTime <- gmapsdistance(origin = CensusPop$GoogleInput,
                                     arr_date = tomorrow,
                                     arr_time = "17:00:00")
 
+WalkingTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
+                                    destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
+                                    mode = "walking",
+                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                                    arr_date = tomorrow,
+                                    arr_time = "17:00:00")
+
 # DriveTime is a list with three data frames (Time, Distance, Status). Let's get Time over to the CensusPop Data Frame as DrivingTime variable.
 
 DriveTime$Time$or <- as.character(DriveTime$Time$or)
@@ -469,27 +582,36 @@ TransitTime$Time$or <- as.character(TransitTime$Time$or)
 names(TransitTime$Time) <- c("GoogleInput", "TransitTime")
 CensusPop <- merge(x = CensusPop, y = TransitTime$Time, by = "GoogleInput")
 
+WalkingTime$Time$or <- as.character(WalkingTime$Time$or) 
+names(WalkingTime$Time) <- c("GoogleInput", "WalkingTime")
+CensusPop <- merge(x = CensusPop, y = WalkingTime$Time, by = "GoogleInput")
 
-# Now we must filter out ONLY the market areas we want to look at. We wish to eliminate Santa Maria area, inland Ventura county, and any farmland areas where agriculture are the biggest industries. Also, these areas are simply too far away and not as easily accessible so it's too difficult to target folks from these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port Hueneme, and Moorpark for good measure.
-
-PUMATractDecoder <- fread("https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt", colClasses = c("character", "character", "character", "character"))
-PUMATractDecoder <- PUMATractDecoder[PUMATractDecoder$STATEFP == "06" & 
-                                    (PUMATractDecoder$PUMA5CE == "08303" | 
-                                     PUMATractDecoder$PUMA5CE == "11104" | 
-                                     PUMATractDecoder$PUMA5CE == "11103" | 
-                                     PUMATractDecoder$PUMA5CE == "11106"), ]
-
-
-PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP, 
-                                PUMATractDecoder$COUNTYFP, 
-                                PUMATractDecoder$TRACTCE,
-                                sep = "")
-
-CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
 # Write it to an excel file to analyze or reference later
 write.table(CensusPop, file = "SB-Ventura Census Tract Populations.txt", row.names = FALSE)
 
+for (i in 1:nrow(MarketCensus)) {
+MarketCensus$DriveTime[i] <- CensusPop$DrivingTime[MarketCensus$Location[i] == CensusPop$ID]
+MarketCensus$BikeTime[i] <- CensusPop$BikingTime[MarketCensus$Location[i] == CensusPop$ID]
+MarketCensus$TransitTime[i] <- CensusPop$TransitTime[MarketCensus$Location[i] == CensusPop$ID]
+MarketCensus$WalkTime[i] <- CensusPop$WalkingTime[MarketCensus$Location[i] == CensusPop$ID]
+}
+
+MarketCensus$CommuteTime <- NULL
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Driving" &
+                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$DriveTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Public Transit" &
+                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$TransitTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Biking" &
+                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$BikeTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Walking" &
+                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$WalkTime
+
+MarketCensus <- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation, DriveTime, BikeTime, TransitTime, WalkTime, TotalIncome, IncomeAdjuster, PUMA, Location))
 ```
 
-
-MarketCensus <- read.csv(file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv")
+# Conclusion to Data Wrangling
+See below the general structure of our data set:
+```{r}
+head(MarketCensus)
+tail(MarketCensus)
+```

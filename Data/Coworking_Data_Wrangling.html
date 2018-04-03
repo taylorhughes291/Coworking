@@ -399,6 +399,7 @@ for (i in 1:nrow(MarketCensus)) {
     }
 }
 
+MarketCensus$OccupationType[MarketCensus$ClassOfWorker == &quot;Entrepreneur&quot;] &lt;- &quot;Business Development&quot;
 MarketCensus$OccupationType &lt;- as.factor(MarketCensus$OccupationType)</code></pre>
 </div>
 <div id="gender-1" class="section level2">
@@ -456,13 +457,35 @@ MarketCensus$EducationLevel &lt;- as.factor(MarketCensus$EducationLevel)
 levels(MarketCensus$EducationLevel) &lt;- c(&quot;No Education&quot;, &quot;High School&quot;, &quot;Bachelor&quot;, 
     &quot;Master&quot;, &quot;Doctoral or Higher&quot;)</code></pre>
 </div>
+<div id="relative-yearly-income-level" class="section level2">
+<h2>Relative Yearly Income Level</h2>
+<p>Since the Coworking Survey doesn’t include any actual numbers to describe the relative income distribution of their respondents, I will in this case translate the income of the US Census respondents into classes using information from (Investopedia)[<a href="https://www.investopedia.com/financial-edge/0912/which-income-class-are-you.aspx" class="uri">https://www.investopedia.com/financial-edge/0912/which-income-class-are-you.aspx</a>].</p>
+<ul>
+<li>“Very High” will map to Upper Class which is $350,000+</li>
+<li>“Rather High” will map to Upper Middle Class which ranges between $113,001 - $349,999</li>
+<li>“Somewhere in the Middle” will map to the Middle Middle Class, ranging between $47,178 - $113,000</li>
+<li>“Rather Low” will map to the Lower Middle Class, ranging between $18,871 - $47,177</li>
+<li>“Very Low” will map to the poverty level, or $0 - $18,870</li>
+<li>NA: NA</li>
+</ul>
+<pre class="r"><code>MarketCensus$TotalIncome &lt;- MarketCensus$TotalIncome * 1.007588
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome &lt;= 18870] &lt;- &quot;Very Low&quot;
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome &lt;= 47177 &amp; MarketCensus$TotalIncome &gt;= 
+    18871] &lt;- &quot;Rather Low&quot;
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome &lt;= 113000 &amp; MarketCensus$TotalIncome &gt;= 
+    47178] &lt;- &quot;Somewhere In The Middle&quot;
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome &lt;= 349999 &amp; MarketCensus$TotalIncome &gt;= 
+    113001] &lt;- &quot;Rather High&quot;
+MarketCensus$RelativeIncome[MarketCensus$TotalIncome &gt;= 350000] &lt;- &quot;Very High&quot;
+MarketCensus$RelativeIncome &lt;- as.factor(MarketCensus$RelativeIncome)</code></pre>
+</div>
 <div id="travel-time-to-work" class="section level2">
 <h2>Travel Time to Work</h2>
-<p>In order to do this, we need to know where our Census folks live which is something we don’t know but I suspect we can simulate. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn’t allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:</p>
+<p>In order to do this, we need to know where our Census folks live which is something we don’t know; however I suspect we can simulate this information. If we could randomly assign folks to the various census tracts of Santa Barbara and Ventura Counties, we could then use the centroid latitude and longitude of those census tracts, run it through Google Maps API, and ascertain approximately how long it would take folks from all over the region to get to the Coworking Space. Unfortunately, this does scramble our data into non-useful high-income and low-income areas that may not be indicative of our region and thus doesn’t allow us to target marketing areas effectively for our advertising campaign. However, if we were to obtain mean income of all census tracts, we may be able to assign folks into a census tract more intelligently based on how their income compares to the mean census tract information. So the steps are:</p>
 <ul>
 <li>Obtain Population Estimates for all pertinent census tracts and determine how many people in our 1% sample will be in each census tract, namely n<sub>c</sub> where c denotes census tract.</li>
 <li>Obtain Average Income for all pertinent census tracts.</li>
-<li>Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it’s total population, assign to the next closest mean income census tract.</li>
+<li>Assign each census respondent to the census tract with the mean income closest to theirs. Increment the count of that census tract population, and if the census tract with the closest mean income has it’s total population already full, assign to the next closest mean income census tract.</li>
 <li>Run this person’s location through Google Maps API according to their mode of transportation to determine transportation time.</li>
 </ul>
 <p>Assumptions:</p>
@@ -471,21 +494,144 @@ levels(MarketCensus$EducationLevel) &lt;- c(&quot;No Education&quot;, &quot;High
 <li>Folks who live within proximity to Amtrak are more likely to take Amtrak which is very close to Coworking Space</li>
 </ul>
 <hr />
-<pre class="r"><code># Looks like SB County is 083 and Ventura County is 111
+<div id="assigning-samples-to-census-tracts" class="section level3">
+<h3>Assigning Samples to Census Tracts</h3>
+<pre class="r"><code># Looks like SB County is FIPS Code 083 and Ventura County is 111
 
 # Now if we want to get population and average income by Census Tract in Santa
 # Barbara and Ventura Counties
 CensusPop &lt;- get_acs(geography = &quot;tract&quot;, variables = c(&quot;B01003_001&quot;, &quot;B19013_001E&quot;), 
-    state = &quot;CA&quot;, county = c(&quot;083&quot;, &quot;111&quot;))
-CensusPop &lt;- subset(CensusPop, select = -moe)
+    state = &quot;CA&quot;, county = c(&quot;083&quot;, &quot;111&quot;))</code></pre>
+<pre><code>## Please note: `get_acs()` now defaults to a year or endyear of 2016.</code></pre>
+<pre class="r"><code>CensusPop &lt;- subset(CensusPop, select = -moe)
 CensusPop &lt;- CensusPop %&gt;% spread(variable, estimate)
 names(CensusPop) &lt;- c(&quot;GEOID&quot;, &quot;NAME&quot;, &quot;Population&quot;, &quot;AverageIncome&quot;)
 
-PopTotal &lt;- sum(CensusPop$Population)
-SampleTotal &lt;- nrow(MarketCensus)
-CensusPop$SampleSize &lt;- round((CensusPop$Population/PopTotal) * SampleTotal)
+# Now we must filter out ONLY the market areas we want to look at. We wish to
+# eliminate Santa Maria area, inland Ventura county, and any farmland areas where
+# agriculture are the biggest industries. Also, these areas are simply too far
+# away and not as easily accessible so it's too difficult to target folks from
+# these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port
+# Hueneme, and Moorpark for good measure.
 
-# In order to get the latitude and longitude of the census tracts
+PUMATractDecoder &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt&quot;, 
+    colClasses = c(&quot;character&quot;, &quot;character&quot;, &quot;character&quot;, &quot;character&quot;))
+PUMATractDecoder &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot; &amp; (PUMATractDecoder$PUMA5CE == 
+    &quot;08303&quot; | PUMATractDecoder$PUMA5CE == &quot;11104&quot; | PUMATractDecoder$PUMA5CE == &quot;11103&quot; | 
+    PUMATractDecoder$PUMA5CE == &quot;11106&quot;), ]
+
+
+PUMATractDecoder$GEOID &lt;- paste(PUMATractDecoder$STATEFP, PUMATractDecoder$COUNTYFP, 
+    PUMATractDecoder$TRACTCE, sep = &quot;&quot;)
+
+CensusPop &lt;- merge(x = CensusPop, y = PUMATractDecoder, by = &quot;GEOID&quot;)
+
+CensusPop$SampleCount &lt;- 0
+
+
+MarketCensusSB &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 8303)
+MarketCensus11103 &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 11103)
+MarketCensus11104 &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 11104)
+MarketCensus11106 &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 11106)
+
+CensusPop$ID &lt;- c(1:nrow(CensusPop))
+CensusSampleCounterSB &lt;- subset(CensusPop, subset = PUMA5CE == &quot;08303&quot;)
+CensusSampleCounter11103 &lt;- subset(CensusPop, subset = PUMA5CE == &quot;11103&quot;)
+CensusSampleCounter11104 &lt;- subset(CensusPop, subset = PUMA5CE == &quot;11104&quot;)
+CensusSampleCounter11106 &lt;- subset(CensusPop, subset = PUMA5CE == &quot;11106&quot;)
+
+PopTotalSB &lt;- sum(CensusSampleCounterSB$Population)
+SampleTotalSB &lt;- nrow(MarketCensusSB)
+CensusSampleCounterSB$SampleSize &lt;- ceiling((CensusSampleCounterSB$Population/PopTotalSB) * 
+    SampleTotalSB)
+
+PopTotal11103 &lt;- sum(CensusSampleCounter11103$Population)
+SampleTotal11103 &lt;- nrow(MarketCensus11103)
+CensusSampleCounter11103$SampleSize &lt;- ceiling((CensusSampleCounter11103$Population/PopTotal11103) * 
+    SampleTotal11103)
+
+PopTotal11104 &lt;- sum(CensusSampleCounter11104$Population)
+SampleTotal11104 &lt;- nrow(MarketCensus11104)
+CensusSampleCounter11104$SampleSize &lt;- ceiling((CensusSampleCounter11104$Population/PopTotal11104) * 
+    SampleTotal11104)
+
+PopTotal11106 &lt;- sum(CensusSampleCounter11106$Population)
+SampleTotal11106 &lt;- nrow(MarketCensus11106)
+CensusSampleCounter11106$SampleSize &lt;- ceiling((CensusSampleCounter11106$Population/PopTotal11106) * 
+    SampleTotal11106)
+
+for (i in 1:nrow(MarketCensusSB)) {
+    if (is.na(MarketCensusSB$TotalIncome[i])) {
+        MarketCensusSB$Location[i] &lt;- NA
+    } else {
+        MarketCensusSB$Location[i] &lt;- CensusSampleCounterSB$ID[which.min(abs(MarketCensusSB$TotalIncome[i] - 
+            CensusSampleCounterSB$AverageIncome))]
+        CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]] &lt;- CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == 
+            MarketCensusSB$Location[i]] + 1
+        if (CensusSampleCounterSB$SampleCount[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]] &gt;= 
+            CensusSampleCounterSB$SampleSize[CensusSampleCounterSB$ID == MarketCensusSB$Location[i]]) {
+            CensusSampleCounterSB &lt;- subset(CensusSampleCounterSB, subset = CensusSampleCounterSB$ID != 
+                MarketCensusSB$Location[i])
+        }
+    }
+}
+
+for (i in 1:nrow(MarketCensus11103)) {
+    if (is.na(MarketCensus11103$TotalIncome[i])) {
+        MarketCensus11103$Location[i] &lt;- NA
+    } else {
+        MarketCensus11103$Location[i] &lt;- CensusSampleCounter11103$ID[which.min(abs(MarketCensus11103$TotalIncome[i] - 
+            CensusSampleCounter11103$AverageIncome))]
+        CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]] &lt;- CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == 
+            MarketCensus11103$Location[i]] + 1
+        if (CensusSampleCounter11103$SampleCount[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]] &gt;= 
+            CensusSampleCounter11103$SampleSize[CensusSampleCounter11103$ID == MarketCensus11103$Location[i]]) {
+            CensusSampleCounter11103 &lt;- subset(CensusSampleCounter11103, subset = CensusSampleCounter11103$ID != 
+                MarketCensus11103$Location[i])
+        }
+    }
+}
+
+for (i in 1:nrow(MarketCensus11104)) {
+    if (is.na(MarketCensus11104$TotalIncome[i])) {
+        MarketCensus11104$Location[i] &lt;- NA
+    } else {
+        MarketCensus11104$Location[i] &lt;- CensusSampleCounter11104$ID[which.min(abs(MarketCensus11104$TotalIncome[i] - 
+            CensusSampleCounter11104$AverageIncome))]
+        CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]] &lt;- CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == 
+            MarketCensus11104$Location[i]] + 1
+        if (CensusSampleCounter11104$SampleCount[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]] &gt;= 
+            CensusSampleCounter11104$SampleSize[CensusSampleCounter11104$ID == MarketCensus11104$Location[i]]) {
+            CensusSampleCounter11104 &lt;- subset(CensusSampleCounter11104, subset = CensusSampleCounter11104$ID != 
+                MarketCensus11104$Location[i])
+        }
+    }
+}
+
+for (i in 1:nrow(MarketCensus11106)) {
+    if (is.na(MarketCensus11106$TotalIncome[i])) {
+        MarketCensus11106$Location[i] &lt;- NA
+    } else {
+        MarketCensus11106$Location[i] &lt;- CensusSampleCounter11106$ID[which.min(abs(MarketCensus11106$TotalIncome[i] - 
+            CensusSampleCounter11106$AverageIncome))]
+        CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]] &lt;- CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == 
+            MarketCensus11106$Location[i]] + 1
+        if (CensusSampleCounter11106$SampleCount[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]] &gt;= 
+            CensusSampleCounter11106$SampleSize[CensusSampleCounter11106$ID == MarketCensus11106$Location[i]]) {
+            CensusSampleCounter11106 &lt;- subset(CensusSampleCounter11106, subset = CensusSampleCounter11106$ID != 
+                MarketCensus11106$Location[i])
+        }
+    }
+}
+
+MarketCensus &lt;- rbind(MarketCensusSB, MarketCensus11103, MarketCensus11104, MarketCensus11106)
+for (i in 1:nrow(MarketCensus)) {
+    MarketCensus$Tract[i] &lt;- CensusPop$NAME[MarketCensus$Location[i] == CensusPop$ID]
+}</code></pre>
+</div>
+<div id="obtaining-drive-time-data" class="section level3">
+<h3>Obtaining Drive Time Data</h3>
+<pre class="r"><code># In order to get the latitude and longitude of the census tracts
 
 CensusLoc &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2017_Gazetteer/2017_gaz_tracts_06.txt&quot;)
 CensusLoc$GEOID &lt;- as.character(CensusLoc$GEOID)
@@ -530,6 +676,10 @@ TransitTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, destination = &q
     mode = &quot;transit&quot;, key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;, arr_date = tomorrow, 
     arr_time = &quot;17:00:00&quot;)
 
+WalkingTime &lt;- gmapsdistance(origin = CensusPop$GoogleInput, destination = &quot;410+Palm+Ave,+Carpinteria,+CA+93013&quot;, 
+    mode = &quot;walking&quot;, key = &quot;AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU&quot;, arr_date = tomorrow, 
+    arr_time = &quot;17:00:00&quot;)
+
 # DriveTime is a list with three data frames (Time, Distance, Status). Let's get
 # Time over to the CensusPop Data Frame as DrivingTime variable.
 
@@ -545,29 +695,96 @@ TransitTime$Time$or &lt;- as.character(TransitTime$Time$or)
 names(TransitTime$Time) &lt;- c(&quot;GoogleInput&quot;, &quot;TransitTime&quot;)
 CensusPop &lt;- merge(x = CensusPop, y = TransitTime$Time, by = &quot;GoogleInput&quot;)
 
+WalkingTime$Time$or &lt;- as.character(WalkingTime$Time$or)
+names(WalkingTime$Time) &lt;- c(&quot;GoogleInput&quot;, &quot;WalkingTime&quot;)
+CensusPop &lt;- merge(x = CensusPop, y = WalkingTime$Time, by = &quot;GoogleInput&quot;)
 
-# Now we must filter out ONLY the market areas we want to look at. We wish to
-# eliminate Santa Maria area, inland Ventura county, and any farmland areas where
-# agriculture are the biggest industries. Also, these areas are simply too far
-# away and not as easily accessible so it's too difficult to target folks from
-# these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port
-# Hueneme, and Moorpark for good measure.
-
-PUMATractDecoder &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt&quot;, 
-    colClasses = c(&quot;character&quot;, &quot;character&quot;, &quot;character&quot;, &quot;character&quot;))
-PUMATractDecoder &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot; &amp; (PUMATractDecoder$PUMA5CE == 
-    &quot;08303&quot; | PUMATractDecoder$PUMA5CE == &quot;11104&quot; | PUMATractDecoder$PUMA5CE == &quot;11103&quot; | 
-    PUMATractDecoder$PUMA5CE == &quot;11106&quot;), ]
-
-
-PUMATractDecoder$GEOID &lt;- paste(PUMATractDecoder$STATEFP, PUMATractDecoder$COUNTYFP, 
-    PUMATractDecoder$TRACTCE, sep = &quot;&quot;)
-
-CensusPop &lt;- merge(x = CensusPop, y = PUMATractDecoder, by = &quot;GEOID&quot;)
 # Write it to an excel file to analyze or reference later
-write.table(CensusPop, file = &quot;SB-Ventura Census Tract Populations.txt&quot;, row.names = FALSE)</code></pre>
-<p>MarketCensus &lt;- read.csv(file = “Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv”)</p>
+write.table(CensusPop, file = &quot;SB-Ventura Census Tract Populations.txt&quot;, row.names = FALSE)
+
+for (i in 1:nrow(MarketCensus)) {
+    MarketCensus$DriveTime[i] &lt;- CensusPop$DrivingTime[MarketCensus$Location[i] == 
+        CensusPop$ID]
+    MarketCensus$BikeTime[i] &lt;- CensusPop$BikingTime[MarketCensus$Location[i] == 
+        CensusPop$ID]
+    MarketCensus$TransitTime[i] &lt;- CensusPop$TransitTime[MarketCensus$Location[i] == 
+        CensusPop$ID]
+    MarketCensus$WalkTime[i] &lt;- CensusPop$WalkingTime[MarketCensus$Location[i] == 
+        CensusPop$ID]
+}
+
+MarketCensus$CommuteTime &lt;- NULL
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Driving&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$DriveTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Public Transit&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$TransitTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Biking&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$BikeTime
+MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Walking&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$WalkTime
+
+MarketCensus &lt;- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation, DriveTime, 
+    BikeTime, TransitTime, WalkTime, TotalIncome, IncomeAdjuster, PUMA, Location))</code></pre>
 </div>
+</div>
+</div>
+<div id="conclusion-to-data-wrangling" class="section level1">
+<h1>Conclusion to Data Wrangling</h1>
+<p>See below the general structure of our data set:</p>
+<pre class="r"><code>head(MarketCensus)</code></pre>
+<pre><code>##     TransportationMode ClassOfWorker    Sex MaritalStatus  HealthInsurance
+## 236            Walking      Employee Female   Not Married Health Insurance
+## 569               &lt;NA&gt;      Employee   Male   Not Married Health Insurance
+## 730             Biking      Employee   Male   Not Married Health Insurance
+## 731             Biking      Employee Female   Not Married Health Insurance
+## 806               &lt;NA&gt;          &lt;NA&gt;   Male       Married Health Insurance
+## 807               &lt;NA&gt;          &lt;NA&gt; Female       Married Health Insurance
+##     EducationLevel      HomeOffice AgeBracket OccupationType
+## 236         Master Not Home Office      30-39          Other
+## 569    High School Not Home Office      40-49          Other
+## 730    High School Not Home Office      18-29       Research
+## 731    High School Not Home Office      18-29       Research
+## 806       Bachelor Not Home Office        60+           &lt;NA&gt;
+## 807       Bachelor Not Home Office        60+           &lt;NA&gt;
+##     RelativeIncome                                                Tract
+## 236     Rather Low     Census Tract 9, Santa Barbara County, California
+## 569       Very Low Census Tract 29.26, Santa Barbara County, California
+## 730       Very Low Census Tract 29.26, Santa Barbara County, California
+## 731       Very Low Census Tract 29.26, Santa Barbara County, California
+## 806    Rather High    Census Tract 15, Santa Barbara County, California
+## 807    Rather High    Census Tract 15, Santa Barbara County, California
+##     CommuteTime
+## 236       14151
+## 569          NA
+## 730        4077
+## 731        7316
+## 806          NA
+## 807          NA</code></pre>
+<pre class="r"><code>tail(MarketCensus)</code></pre>
+<pre><code>##        TransportationMode ClassOfWorker    Sex
+## 375092               &lt;NA&gt;          &lt;NA&gt; Female
+## 375558            Driving      Employee   Male
+## 375654            Driving      Employee Female
+## 375990            Driving      Employee   Male
+## 375991            Driving      Employee Female
+## 375992            Driving      Employee Female
+##                       MaritalStatus  HealthInsurance EducationLevel
+## 375092                  Not Married Health Insurance         Master
+## 375558 Separated, Divorced, Widowed Health Insurance       Bachelor
+## 375654                  Not Married Health Insurance    High School
+## 375990                      Married Health Insurance    High School
+## 375991                      Married Health Insurance    High School
+## 375992                  Not Married Health Insurance    High School
+##             HomeOffice AgeBracket OccupationType          RelativeIncome
+## 375092 Not Home Office        60+           &lt;NA&gt;                Very Low
+## 375558 Not Home Office        60+          Other Somewhere In The Middle
+## 375654 Not Home Office      18-29          Other              Rather Low
+## 375990 Not Home Office      50-59          Other Somewhere In The Middle
+## 375991 Not Home Office      40-49          Other Somewhere In The Middle
+## 375992 Not Home Office      18-29          Other                Very Low
+##                                                 Tract CommuteTime
+## 375092 Census Tract 76.07, Ventura County, California          NA
+## 375558 Census Tract 76.07, Ventura County, California        2206
+## 375654 Census Tract 76.07, Ventura County, California        2206
+## 375990 Census Tract 76.07, Ventura County, California        2206
+## 375991 Census Tract 76.07, Ventura County, California        2206
+## 375992 Census Tract 76.07, Ventura County, California        2206</code></pre>
 </div>
 
 

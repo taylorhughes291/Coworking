@@ -597,16 +597,29 @@ MarketCensus$WalkTime[i] <- CensusPop$WalkingTime[MarketCensus$Location[i] == Ce
 }
 
 MarketCensus$CommuteTime <- NULL
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Driving" &
-                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$DriveTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Public Transit" &
-                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$TransitTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Biking" &
-                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$BikeTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == "Walking" &
-                         !is.na(MarketCensus$TransportationMode)] <- MarketCensus$WalkTime
+for (i in 1:nrow(MarketCensus)) {
+  if (is.na(MarketCensus$TransportationMode[i])) {
+    MarketCensus$CommuteTime[i] <- NA
+  } else if (MarketCensus$TransportationMode[i] == "Driving") {
+    MarketCensus$CommuteTime[i] <- MarketCensus$DriveTime[i]
+  } else if (MarketCensus$TransportationMode[i] == "Public Transit") {
+    MarketCensus$CommuteTime[i] <- MarketCensus$TransitTime[i]
+  } else if (MarketCensus$TransportationMode[i] == "Biking") {
+    MarketCensus$CommuteTime[i] <- MarketCensus$BikeTime[i]
+  } else if (MarketCensus$TransportationMode[i] == "Walking") {
+    MarketCensus$CommuteTime[i] <- MarketCensus$WalkTime[i]
+  } else {
+    MarketCensus$CommuteTime[i] <- MarketCensus$DriveTime
+  }
+}
 
-MarketCensus <- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation, DriveTime, BikeTime, TransitTime, WalkTime, TotalIncome, IncomeAdjuster, PUMA, Location))
+MarketCensus$CommuteTime <- MarketCensus$CommuteTime/60
+MarketCensus$CommuteTime[MarketCensus$CommuteTime <= 20] <- 1
+MarketCensus$CommuteTime[MarketCensus$CommuteTime > 20] <- 21
+MarketCensus$CommuteTime <- as.factor(MarketCensus$CommuteTime)
+levels(MarketCensus$CommuteTime) <- c("Yes", "No")
+
+MarketCensus <- subset(MarketCensus, select = -c(Location, Tract, DriveTime, BikeTime, TransitTime, WalkTime, ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, PUMA))
 ```
 
 # Conclusion to Data Wrangling

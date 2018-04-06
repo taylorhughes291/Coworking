@@ -714,18 +714,35 @@ for (i in 1:nrow(MarketCensus)) {
 }
 
 MarketCensus$CommuteTime &lt;- NULL
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Driving&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$DriveTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Public Transit&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$TransitTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Biking&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$BikeTime
-MarketCensus$CommuteTime[MarketCensus$TransportationMode == &quot;Walking&quot; &amp; !is.na(MarketCensus$TransportationMode)] &lt;- MarketCensus$WalkTime
+for (i in 1:nrow(MarketCensus)) {
+    if (is.na(MarketCensus$TransportationMode[i])) {
+        MarketCensus$CommuteTime[i] &lt;- NA
+    } else if (MarketCensus$TransportationMode[i] == &quot;Driving&quot;) {
+        MarketCensus$CommuteTime[i] &lt;- MarketCensus$DriveTime[i]
+    } else if (MarketCensus$TransportationMode[i] == &quot;Public Transit&quot;) {
+        MarketCensus$CommuteTime[i] &lt;- MarketCensus$TransitTime[i]
+    } else if (MarketCensus$TransportationMode[i] == &quot;Biking&quot;) {
+        MarketCensus$CommuteTime[i] &lt;- MarketCensus$BikeTime[i]
+    } else if (MarketCensus$TransportationMode[i] == &quot;Walking&quot;) {
+        MarketCensus$CommuteTime[i] &lt;- MarketCensus$WalkTime[i]
+    } else {
+        MarketCensus$CommuteTime[i] &lt;- MarketCensus$DriveTime
+    }
+}
 
-MarketCensus &lt;- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation, DriveTime, 
-    BikeTime, TransitTime, WalkTime, TotalIncome, IncomeAdjuster, PUMA, Location))</code></pre>
+MarketCensus$CommuteTime &lt;- MarketCensus$CommuteTime/60
+MarketCensus$CommuteTime[MarketCensus$CommuteTime &lt;= 20] &lt;- 1
+MarketCensus$CommuteTime[MarketCensus$CommuteTime &gt; 20] &lt;- 21
+MarketCensus$CommuteTime &lt;- as.factor(MarketCensus$CommuteTime)
+levels(MarketCensus$CommuteTime) &lt;- c(&quot;Yes&quot;, &quot;No&quot;)
+
+MarketCensus &lt;- subset(MarketCensus, select = -c(Location, Tract, DriveTime, BikeTime, 
+    TransitTime, WalkTime, ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, 
+    PUMA))</code></pre>
 </div>
 </div>
-</div>
-<div id="conclusion-to-data-wrangling" class="section level1">
-<h1>Conclusion to Data Wrangling</h1>
+<div id="conclusion-to-data-wrangling-for-market-area" class="section level2">
+<h2>Conclusion to Data Wrangling for Market Area</h2>
 <p>See below the general structure of our data set:</p>
 <pre class="r"><code>head(MarketCensus)</code></pre>
 <pre><code>##     TransportationMode ClassOfWorker    Sex MaritalStatus  HealthInsurance
@@ -742,20 +759,13 @@ MarketCensus &lt;- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation
 ## 731    High School Not Home Office      18-29       Research
 ## 806       Bachelor Not Home Office        60+           &lt;NA&gt;
 ## 807       Bachelor Not Home Office        60+           &lt;NA&gt;
-##     RelativeIncome                                                Tract
-## 236     Rather Low     Census Tract 9, Santa Barbara County, California
-## 569       Very Low Census Tract 29.26, Santa Barbara County, California
-## 730       Very Low Census Tract 29.26, Santa Barbara County, California
-## 731       Very Low Census Tract 29.26, Santa Barbara County, California
-## 806    Rather High    Census Tract 15, Santa Barbara County, California
-## 807    Rather High    Census Tract 15, Santa Barbara County, California
-##     CommuteTime
-## 236       14151
-## 569          NA
-## 730        4077
-## 731        7316
-## 806          NA
-## 807          NA</code></pre>
+##     RelativeIncome CommuteTime
+## 236     Rather Low          No
+## 569       Very Low        &lt;NA&gt;
+## 730       Very Low          No
+## 731       Very Low          No
+## 806    Rather High        &lt;NA&gt;
+## 807    Rather High        &lt;NA&gt;</code></pre>
 <pre class="r"><code>tail(MarketCensus)</code></pre>
 <pre><code>##        TransportationMode ClassOfWorker    Sex
 ## 375092               &lt;NA&gt;          &lt;NA&gt; Female
@@ -778,13 +788,228 @@ MarketCensus &lt;- subset(MarketCensus, select = -c(ArrivalTime, Age, Occupation
 ## 375990 Not Home Office      50-59          Other Somewhere In The Middle
 ## 375991 Not Home Office      40-49          Other Somewhere In The Middle
 ## 375992 Not Home Office      18-29          Other                Very Low
-##                                                 Tract CommuteTime
-## 375092 Census Tract 76.07, Ventura County, California          NA
-## 375558 Census Tract 76.07, Ventura County, California        2206
-## 375654 Census Tract 76.07, Ventura County, California        2206
-## 375990 Census Tract 76.07, Ventura County, California        2206
-## 375991 Census Tract 76.07, Ventura County, California        2206
-## 375992 Census Tract 76.07, Ventura County, California        2206</code></pre>
+##        CommuteTime
+## 375092        &lt;NA&gt;
+## 375558          No
+## 375654          No
+## 375990          No
+## 375991          No
+## 375992          No</code></pre>
+<table style="width:79%;">
+<colgroup>
+<col width="79%"></col>
+</colgroup>
+<tbody>
+<tr class="odd">
+<td align="left"># Creating Training Data In order to run a successful scoring system, we must create a training set of data. In order to do this, I will create a data set of 100 observations using the breakdown of the 2017 Global Coworking Survey and each assign them a “1” in a new category called “CoworkingMember”. This indicates that these people are indeed customers of coworking spaces. I will then take the total population of California and divide that by the number of coworking space members in the state of California. Multiplying that number by 100, we should get the total number of observations of non-coworking individuals in our training data set. That number will be big enough that we shouldn’t see problems with bias in sample size, so we will extract at random that number of samples from our huge file of 1% of the California population. These will have assignments of “0” in the “CoworkingMember” column. Our training data should then be complete, with the same ratio of coworking members to non-coworking members that we see in real life.</td>
+</tr>
+<tr class="even">
+<td align="left">Alternatively, should we want to make a less biased sample size, we could create more than 100 observations of CoworkingMember set to 1 and then attach that to the full 300,000 count sample of the population of California.</td>
+</tr>
+<tr class="odd">
+<td align="left">## Creating Coworker Member Profiles ### Mode of Transportation and Distance to Coworking Space Mode of Transportation should be pretty easy to simulate. We will make 51 drivers, 22 cyclists, 19 walkers, and 8 Public Transportation Users.</td>
+</tr>
+<tr class="even">
+<td align="left">```r TransportationMode &lt;- c(rep(“Driving”, times = 51), rep(“Public Transit”, times = 8), rep(“Biking”, times = 22), rep(“Walking”, times = 19))</td>
+</tr>
+<tr class="odd">
+<td align="left">CommuteTime &lt;- c(rep(“Yes”, times = 81), rep(“No”, times = 19)) ```</td>
+</tr>
+<tr class="even">
+<td align="left">### Age of Member</td>
+</tr>
+<tr class="odd">
+<td align="left"><code>r AgeBracket &lt;- c(rep(&quot;18-29&quot;, times = 28), rep(&quot;30-39&quot;, times = 39), rep(&quot;40-49&quot;, times = 19), rep(&quot;50-59&quot;, times = 13), &quot;60+&quot;)</code></td>
+</tr>
+<tr class="even">
+<td align="left">### Job Status</td>
+</tr>
+<tr class="odd">
+<td align="left">```r ClassOfWorker &lt;- c(rep(“Employee”, times = 51), rep(“Freelancer”, times = 32), rep(“Entrepreneur”, times = 12), rep(“Other”, times = 5))</td>
+</tr>
+<tr class="even">
+<td align="left">OccupationType &lt;- c(rep(“Art”, times = 3), rep(“Business Development”, times = 8), rep(“Design”, times = 10), rep(“Education”, times = 5), rep(“Higher Management”, times = 7), rep(“IT”, times = 31), rep(“Other”, times = 16), rep(“PR, Marketing, Sales, Advertising”, times = 8), rep(“Research”, times = 7), rep(“Writing”, times = 5)) ```</td>
+</tr>
+<tr class="odd">
+<td align="left">### Gender</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r Sex &lt;- c(rep(&quot;Male&quot;, times = 60), rep(&quot;Female&quot;, times = 40))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Relationship Status</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r MaritalStatus &lt;- c(rep(&quot;Married&quot;, times = 47), rep(&quot;Separated, Divorced, Widowed&quot;, times = 7), rep(&quot;Not Married&quot;, times = 41), rep(NA, times = 5))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Health Insurance</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r HealthInsurance &lt;- c(rep(&quot;Health Insurance&quot;, times = 87), rep(&quot;No Health Insurance&quot;, times = 13))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Last Place of Work</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r HomeOffice &lt;- c(rep(&quot;Not Home Office&quot;, times = 56), rep(&quot;Home Office&quot;, time = 44))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Highest Level of School Education</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r EducationLevel &lt;- c(&quot;No Education&quot;, rep(&quot;High School&quot;, times = 10), rep(&quot;Bachelor&quot;, times = 41), rep(&quot;Master&quot;, times = 41), rep(&quot;Doctoral or Higher&quot;, times = 4), rep(NA, times = 3))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Relative Income</td>
+</tr>
+<tr class="even">
+<td align="left"><code>r RelativeIncome &lt;- c(rep(&quot;Rather High&quot;, times = 34), rep(&quot;Rather Low&quot;, times = 9), rep(&quot;Somewhere In The Middle&quot;, times = 45), rep(&quot;Very High&quot;, times = 5), &quot;Very Low&quot;, rep(NA, times = 6))</code></td>
+</tr>
+<tr class="odd">
+<td align="left">### Coworker Profiles</td>
+</tr>
+<tr class="even">
+<td align="left">```r TrainCensus &lt;- data.frame(TransportationMode)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, CommuteTime)</td>
+</tr>
+<tr class="even">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, AgeBracket)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, ClassOfWorker)</td>
+</tr>
+<tr class="even">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, OccupationType)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, Sex)</td>
+</tr>
+<tr class="even">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, MaritalStatus)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, HealthInsurance)</td>
+</tr>
+<tr class="even">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, HomeOffice)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, EducationLevel)</td>
+</tr>
+<tr class="even">
+<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, RelativeIncome)</td>
+</tr>
+<tr class="odd">
+<td align="left">TrainCensus$CoworkMember &lt;- 1 ```</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="creating-non-member-profiles" class="section level2">
+<h2>Creating Non-Member Profiles</h2>
+<p>We will now create non-member profiles from a complete sample of the California population.</p>
+<pre class="r"><code>Census &lt;- subset(Census, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, 
+    SCHL, PINCP, ADJINC, PUMA))
+
+
+names(Census) &lt;- c(&quot;TransportationMode&quot;, &quot;ArrivalTime&quot;, &quot;Age&quot;, &quot;ClassOfWorker&quot;, &quot;Occupation&quot;, 
+    &quot;Sex&quot;, &quot;MaritalStatus&quot;, &quot;HealthInsurance&quot;, &quot;EducationLevel&quot;, &quot;TotalIncome&quot;, &quot;IncomeAdjuster&quot;, 
+    &quot;PUMA&quot;)
+
+Census$HomeOffice &lt;- ifelse(Census$TransportationMode == 11, 1, 0)
+Census$HomeOffice[is.na(Census$HomeOffice)] &lt;- 0
+
+Census$TransportationMode &lt;- as.factor(Census$TransportationMode)
+levels(Census$TransportationMode) &lt;- c(&quot;Driving&quot;, &quot;Public Transit&quot;, &quot;Public Transit&quot;, 
+    &quot;Public Transit&quot;, &quot;Public Transit&quot;, NA, &quot;Driving&quot;, &quot;Driving&quot;, &quot;Biking&quot;, &quot;Walking&quot;, 
+    &quot;Home Office&quot;, NA)
+
+Census &lt;- subset(Census, subset = Census$Age &gt;= 18)
+
+Census$Age[Census$Age &gt;= 18 &amp; Census$Age &lt;= 29] &lt;- 18
+Census$Age[Census$Age &gt;= 30 &amp; Census$Age &lt;= 39] &lt;- 30
+Census$Age[Census$Age &gt;= 40 &amp; Census$Age &lt;= 49] &lt;- 40
+Census$Age[Census$Age &gt;= 50 &amp; Census$Age &lt;= 59] &lt;- 50
+Census$Age[Census$Age &gt;= 60] &lt;- 60
+
+Census$Age &lt;- as.factor(Census$Age)
+levels(Census$Age) &lt;- c(&quot;18-29&quot;, &quot;30-39&quot;, &quot;40-49&quot;, &quot;50-59&quot;, &quot;60+&quot;)
+Census$AgeBracket &lt;- Census$Age
+
+Census$ClassOfWorker &lt;- as.factor(Census$ClassOfWorker)
+levels(Census$ClassOfWorker) &lt;- c(&quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, 
+    &quot;Employee&quot;, &quot;Freelancer&quot;, &quot;Entrepreneur&quot;, &quot;Other&quot;, NA)
+
+Census$Occupation[is.na(Census$Occupation)] &lt;- 0
+Census$Occupation[(Census$Occupation &gt;= 1006 &amp; Census$Occupation &lt;= 1200) | Census$Occupation == 
+    1240] &lt;- 1006
+Census$Occupation[(Census$Occupation &gt;= 40 &amp; Census$Occupation &lt;= 60) | Census$Occupation == 
+    735 | Census$Occupation == 2825 | Census$Occupation == 4800 | (Census$Occupation &gt;= 
+    4840 &amp; Census$Occupation &lt;= 4930) | Census$Occupation == 4965] &lt;- 2825
+Census$Occupation[Census$Occupation == 1005 | Census$Occupation == 735 | Census$Occupation == 
+    1220 | (Census$Occupation &gt;= 1600 &amp; Census$Occupation &lt;= 1965)] &lt;- 1005
+Census$Occupation[Census$Occupation &gt;= 2840 &amp; Census$Occupation &lt;= 2850] &lt;- 2840
+Census$Occupation[(Census$Occupation &gt;= 510 &amp; Census$Occupation &lt;= 726) | Census$Occupation == 
+    740] &lt;- 510
+Census$Occupation[Census$Occupation == 2025 | Census$Occupation == 2050 | (Census$Occupation &gt;= 
+    2200 &amp; Census$Occupation &lt;= 2550)] &lt;- 2025
+Census$Occupation[(Census$Occupation &gt;= 10 &amp; Census$Occupation &lt;= 20) | (Census$Occupation &gt;= 
+    100 &amp; Census$Occupation &lt;= 430)] &lt;- 10
+Census$Occupation[Census$Occupation == 500 | Census$Occupation == 2600 | (Census$Occupation &gt;= 
+    2700 &amp; Census$Occupation &lt;= 2810) | Census$Occupation == 2830 | (Census$Occupation &gt;= 
+    2860 &amp; Census$Occupation &lt;= 2920) | Census$Occupation == 4000] &lt;- 500
+Census$Occupation[Census$Occupation != 500 &amp; Census$Occupation != 10 &amp; Census$Occupation != 
+    2025 &amp; Census$Occupation != 510 &amp; Census$Occupation != 2840 &amp; Census$Occupation != 
+    1005 &amp; Census$Occupation != 2630 &amp; Census$Occupation != 2825 &amp; Census$Occupation != 
+    1006 &amp; Census$Occupation != 0] &lt;- 800
+
+Census$Occupation &lt;- as.factor(Census$Occupation)
+levels(Census$Occupation) &lt;- c(NA, &quot;Higher Management&quot;, &quot;Art&quot;, &quot;Business Development&quot;, 
+    &quot;Other&quot;, &quot;Research&quot;, &quot;IT&quot;, &quot;Education&quot;, &quot;Design&quot;, &quot;PR, Marketing, Sales, Advertising&quot;, 
+    &quot;Writing&quot;)
+
+
+
+Census$Occupation[Census$ClassOfWorker == &quot;Entrepreneur&quot;] &lt;- &quot;Business Development&quot;
+
+Census$OccupationType &lt;- Census$Occupation
+
+Census$Sex &lt;- as.factor(Census$Sex)
+levels(Census$Sex) &lt;- c(&quot;Male&quot;, &quot;Female&quot;)
+
+Census$MaritalStatus &lt;- as.factor(Census$MaritalStatus)
+levels(Census$MaritalStatus) &lt;- c(&quot;Married&quot;, &quot;Separated, Divorced, Widowed&quot;, &quot;Separated, Divorced, Widowed&quot;, 
+    &quot;Separated, Divorced, Widowed&quot;, &quot;Not Married&quot;)
+
+Census$HealthInsurance &lt;- as.factor(Census$HealthInsurance)
+levels(Census$HealthInsurance) &lt;- c(&quot;Health Insurance&quot;, &quot;No Health Insurance&quot;)
+
+Census$HomeOffice &lt;- as.factor(Census$HomeOffice)
+levels(Census$HomeOffice) &lt;- c(&quot;Not Home Office&quot;, &quot;Home Office&quot;)
+
+Census$EducationLevel[Census$EducationLevel == 21 | Census$EducationLevel == 23] &lt;- 21
+Census$EducationLevel[Census$EducationLevel &gt;= 16 &amp; Census$EducationLevel &lt;= 20] &lt;- 16
+Census$EducationLevel[Census$EducationLevel &gt;= 1 &amp; Census$EducationLevel &lt;= 15] &lt;- 1
+Census$EducationLevel &lt;- as.factor(Census$EducationLevel)
+levels(Census$EducationLevel) &lt;- c(&quot;No Education&quot;, &quot;High School&quot;, &quot;Bachelor&quot;, &quot;Master&quot;, 
+    &quot;Doctoral or Higher&quot;)
+
+Census$TotalIncome &lt;- Census$TotalIncome * 1.007588
+Census$RelativeIncome[Census$TotalIncome &lt;= 18870] &lt;- &quot;Very Low&quot;
+Census$RelativeIncome[Census$TotalIncome &lt;= 47177 &amp; Census$TotalIncome &gt;= 18871] &lt;- &quot;Rather Low&quot;
+Census$RelativeIncome[Census$TotalIncome &lt;= 113000 &amp; Census$TotalIncome &gt;= 47178] &lt;- &quot;Somewhere In The Middle&quot;
+Census$RelativeIncome[Census$TotalIncome &lt;= 349999 &amp; Census$TotalIncome &gt;= 113001] &lt;- &quot;Rather High&quot;
+Census$RelativeIncome[Census$TotalIncome &gt;= 350000] &lt;- &quot;Very High&quot;
+Census$RelativeIncome &lt;- as.factor(Census$RelativeIncome)
+
+Census$CoworkMember &lt;- 0
+
+Census &lt;- subset(Census, select = -c(ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, 
+    PUMA))</code></pre>
+</div>
 </div>
 
 

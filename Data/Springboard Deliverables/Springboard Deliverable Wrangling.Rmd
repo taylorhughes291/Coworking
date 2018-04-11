@@ -41,3 +41,6 @@ Most of the fields were relatively easy to convert. Every field had to be conver
     + Compute for each Census Tract the geographically closest Coworking Space in terms of Euclidean Distance
     + Compute the commute time between each Census Tract centroid point and its closest geographical Coworking Space.
     + Use this information to determine if each LA County Census observation can commute to any Coworking Location within 20 minutes.
+    
+## Completed Market Area Census Data
+Please see the .txt file for the [Market Area Census Data](https://github.com/taylorhughes291/Coworking/blob/master/Data/Springboard%20Deliverables/Market%20Census%20Final%20Data.txt).

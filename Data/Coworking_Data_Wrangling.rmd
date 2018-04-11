@@ -399,14 +399,11 @@ Assumptions:
 
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(tidycensus)
-library(httr)
-library(jsonlite)
 library(tidyverse)
 library(dplyr)
 library(data.table)
 library(bit64)
 library(gmapsdistance)
-library(stringr)
 census_api_key("baa4385d952532460bbc284b6763cf9d3fe75e31")
 ```
 ### Assigning Samples to Census Tracts
@@ -421,15 +418,13 @@ CensusPopCA <- subset(CensusPopCA, select = -moe)
 CensusPopCA <- CensusPopCA %>% spread(variable, estimate)
 names(CensusPopCA) <- c("GEOID", "NAME", "Population", "AverageIncome")
 
-CensusPopCA$County <- substr(CensusPopCA$GEOID,3,5)
-CensusPopCA$SampleCount <- 0
+CensusPopCA$County <- grep("^\\\...",CensusPopCA$GEOID, value = TRUE)
 
-CensusPop <- subset(CensusPopCA, subset = CensusPopCA$County == "083" | CensusPopCA$County == "111")
+CensusPop <- subset()
 
 # Now we must filter out ONLY the market areas we want to look at. We wish to eliminate Santa Maria area, inland Ventura county, and any farmland areas where agriculture are the biggest industries. Also, these areas are simply too far away and not as easily accessible so it's too difficult to target folks from these areas anyway. We will stick to South Coast SB, Ventura City, Oxnard, Port Hueneme, and Moorpark for good measure.
 
 PUMATractDecoder <- fread("https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt", colClasses = c("character", "character", "character", "character"))
-PUMATractDecoderCA <- PUMATractDecoder[PUMATractDecoder$STATEFP == "06"]
 PUMATractDecoder <- PUMATractDecoder[PUMATractDecoder$STATEFP == "06" & 
                                     (PUMATractDecoder$PUMA5CE == "08303" | 
                                      PUMATractDecoder$PUMA5CE == "11104" | 
@@ -443,6 +438,9 @@ PUMATractDecoder$GEOID <- paste(PUMATractDecoder$STATEFP,
                                 sep = "")
 
 CensusPop <- merge(x = CensusPop, y = PUMATractDecoder, by = "GEOID")
+
+CensusPop$SampleCount <- 0
+
 
 MarketCensusSB <- subset(MarketCensus, subset = MarketCensus$PUMA == 8303)
 MarketCensus11103 <- subset(MarketCensus, subset = MarketCensus$PUMA == 11103)
@@ -758,12 +756,9 @@ TrainCensus$CoworkMember <- 1
 
 
 ## Creating Non-Member Profiles
-We will now create non-member profiles from a complete sample of the Los Angeles population.
+We will now create non-member profiles from a complete sample of the California population.
 
 ```{r}
-Census$PUMA <- as.character(Census$PUMA)
-Census <- subset(Census, subset = substr(Census$PUMA, 1, 2) == "37")
-
 Census <- subset(Census, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
 
 
@@ -892,30 +887,5 @@ Census$RelativeIncome <- as.factor(Census$RelativeIncome)
 
 Census$CoworkMember <- 0
 
-Census <- subset(Census, select = -c(ArrivalTime, Age, Occupation, IncomeAdjuster, PUMA))
-```
-
-### Commute Time to nearest Coworking Space
-```{r}
-CensusPopCA <- subset(CensusPopCA, subset = CensusPopCA$County == "037" & !is.na(CensusPopCA$AverageIncome))
-CensusPopCA$ID <- c(1:nrow(CensusPopCA))
-CensusPopCA2 <- CensusPopCA
-PopTotalCA <- sum(CensusPopCA$Population)
-SampleTotalCA <- nrow(Census)
-CensusPopCA2$SampleSize <- ceiling((CensusPopCA2$Population/PopTotalCA)*SampleTotalCA)
-
-
-for (i in 1: nrow(Census)) { 
-if (is.na(Census$TotalIncome[i])) {
-  Census$Location[i] <- NA
-  } else {
-    Census$Location[i] <- CensusPopCA2$ID[which.min(abs(Census$TotalIncome[i] - CensusPopCA2$AverageIncome))]
-    CensusPopCA2$SampleCount[CensusPopCA2$ID == Census$Location[i]] <- CensusPopCA2$SampleCount[CensusPopCA2$ID == Census$Location[i]] + 1
-    if (CensusPopCA2$SampleCount[CensusPopCA2$ID == Census$Location[i]] >= CensusPopCA2$SampleSize[CensusPopCA2$ID == Census$Location[i]]) {
-      CensusPopCA2 <- subset(CensusPopCA2, subset = CensusPopCA2$ID != Census$Location[i])
-    }
-    }
-}
-
-CensusPopCA <- merge(x = CensusPopCA, y = CensusLoc, by = "GEOID")
+Census <- subset(Census, select = -c(ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, PUMA))
 ```

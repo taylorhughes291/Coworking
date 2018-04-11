@@ -633,6 +633,7 @@ See below the general structure of our data set:
 ```{r}
 head(MarketCensus)
 tail(MarketCensus)
+write.table(x = MarketCensus, file = "Springboard Deliverables/Market Census Final Data.txt", row.names = FALSE)
 ```
 
 

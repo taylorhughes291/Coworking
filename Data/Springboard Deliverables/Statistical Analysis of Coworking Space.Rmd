@@ -1,0 +1,36 @@
+---
+title: "Statistical Analysis of Coworking Space"
+author: "Taylor Hughes"
+date: "4/20/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Statistical Analyses
+First we will run a comparison on 3 sets of data - 
+
+* Proportions of each statistic for Coworking Members
+* Proportions of each statistic for Non-Coworking Training data
+* Proportions of each statistic for Market Area Data
+
+The outcome of this will allow us to make a hypothesis on:
+
+* Statistics that will have a strong impact on the model
+* Which statistical factors would make our Market Area prove to be a weak market for potential customers
+* Which statistical factors would make our Market Area prove to be a strong market for potential customers
+
+## Distance to Home
+```{r}
+table(TrainCensus$CommuteTime, useNA = "ifany")
+table(Census$CommuteTime, useNA = "ifany")
+table(MarketCensus$CommuteTime, useNA = "ifany")
+
+DTHCommuteTrainYes <- nrow(TrainCensus[TrainCensus$CommuteTime == "Yes"])/nrow(TrainCensus)
+DTHTrain <- ggplot(TrainCensus, aes(x = "", y = , fill = CommuteTime)) +
+geom_bar(width = 1, stat = "identity")
+DTHTrain
+```
+

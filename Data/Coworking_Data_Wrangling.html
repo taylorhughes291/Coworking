@@ -273,7 +273,12 @@ $(document).ready(function () {
 <div id="how-to-get-this-data" class="section level1">
 <h1>How to get this data</h1>
 <p>Before you start, make sure you have the following packages installed. Feel free to copy and paste the following into your console:</p>
-<p>install.packages(“tidycensus”) install.packages(“tidyverse”) install.packages(“dplyr”) install.packages(“data.table”) install.packages(“bit64”) install.packages(“gmapsdistance”)</p>
+<pre class="r"><code>install.packages(&quot;tidycensus&quot;)
+install.packages(&quot;tidyverse&quot;)
+install.packages(&quot;dplyr&quot;)
+install.packages(&quot;data.table&quot;)
+install.packages(&quot;bit64&quot;)
+install.packages(&quot;gmapsdistance&quot;)</code></pre>
 <p>We can get a sample of data from our market areas by going to the <a href="https://factfinder.census.gov/faces/nav/jsf/pages/searchresults.xhtml?refresh=t">PUMS Data Website</a> and following these steps:</p>
 <ul>
 <li>In the “topic name” search bar, type “PUMS” and hit search. Wait for your search to load.</li>
@@ -341,11 +346,17 @@ MarketCensus$AgeBracket &lt;- as.factor(MarketCensus$AgeBracket)</code></pre>
 <div id="job-type" class="section level2">
 <h2>Job Type</h2>
 <p>We will classify the Job Type of the worker as follows:</p>
-<p><em>“Employee” will map to 1, 2, 3, 4, 5; or “Employee of Private Not for-profit”, “Employee of Private Non-Profit”, “Local Government Employee”, “State Government Employee”, and “Federal Government Employee” </em> “Entrepreneur” will map to 7; or “Self-Employed in own incorporated business” * “Freelancer” will map to 6; “Self-Employed in own not incorporated business” * “Other” will map to 8; or “Working without pay in family business” * We will drop data with COW status 9; or “Unemployed and last worked 5 years ago or more”</p>
+<ul>
+<li>“Employee” will map to 1, 2, 3, 4, 5; or “Employee of Private Not for-profit”, “Employee of Private Non-Profit”, “Local Government Employee”, “State Government Employee”, and “Federal Government Employee”</li>
+<li>“Entrepreneur” will map to 7; or “Self-Employed in own incorporated business”</li>
+<li>“Freelancer” will map to 6; “Self-Employed in own not incorporated business”</li>
+<li>“Other” will map to 8; or “Working without pay in family business”</li>
+<li>We will drop data with COW status 9; or “Unemployed and last worked 5 years ago or more”</li>
+</ul>
 <pre class="r"><code>MarketCensus$ClassOfWorker &lt;- as.factor(MarketCensus$ClassOfWorker)
 levels(MarketCensus$ClassOfWorker) &lt;- c(&quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, &quot;Employee&quot;, 
     &quot;Employee&quot;, &quot;Freelancer&quot;, &quot;Entrepreneur&quot;, &quot;Other&quot;, NA)</code></pre>
-<p>We have data relating to the person’s job as well. This data is too voluminous to discuss here in detil, but it breaks down as so:</p>
+<p>We have data relating to the person’s job as well. This data is too voluminous to discuss here in detail, but it breaks down as so:</p>
 <ul>
 <li>IT (Software Engineer, Web Developer, includes half Consulting): 1006-1200, 1240</li>
 <li>Consulting: NA</li>
@@ -500,12 +511,18 @@ MarketCensus$RelativeIncome &lt;- as.factor(MarketCensus$RelativeIncome)</code><
 
 # Now if we want to get population and average income by Census Tract in Santa
 # Barbara and Ventura Counties
-CensusPop &lt;- get_acs(geography = &quot;tract&quot;, variables = c(&quot;B01003_001&quot;, &quot;B19013_001E&quot;), 
-    state = &quot;CA&quot;, county = c(&quot;083&quot;, &quot;111&quot;))</code></pre>
+CensusPopCA &lt;- get_acs(geography = &quot;tract&quot;, variables = c(&quot;B01003_001&quot;, &quot;B19013_001E&quot;), 
+    state = &quot;CA&quot;)</code></pre>
 <pre><code>## Please note: `get_acs()` now defaults to a year or endyear of 2016.</code></pre>
-<pre class="r"><code>CensusPop &lt;- subset(CensusPop, select = -moe)
-CensusPop &lt;- CensusPop %&gt;% spread(variable, estimate)
-names(CensusPop) &lt;- c(&quot;GEOID&quot;, &quot;NAME&quot;, &quot;Population&quot;, &quot;AverageIncome&quot;)
+<pre class="r"><code>CensusPopCA &lt;- subset(CensusPopCA, select = -moe)
+CensusPopCA &lt;- CensusPopCA %&gt;% spread(variable, estimate)
+names(CensusPopCA) &lt;- c(&quot;GEOID&quot;, &quot;NAME&quot;, &quot;Population&quot;, &quot;AverageIncome&quot;)
+
+CensusPopCA$County &lt;- substr(CensusPopCA$GEOID, 3, 5)
+CensusPopCA$SampleCount &lt;- 0
+
+CensusPop &lt;- subset(CensusPopCA, subset = CensusPopCA$County == &quot;083&quot; | CensusPopCA$County == 
+    &quot;111&quot;)
 
 # Now we must filter out ONLY the market areas we want to look at. We wish to
 # eliminate Santa Maria area, inland Ventura county, and any farmland areas where
@@ -516,6 +533,7 @@ names(CensusPop) &lt;- c(&quot;GEOID&quot;, &quot;NAME&quot;, &quot;Population&q
 
 PUMATractDecoder &lt;- fread(&quot;https://www2.census.gov/geo/docs/maps-data/data/rel/2010_Census_Tract_to_2010_PUMA.txt&quot;, 
     colClasses = c(&quot;character&quot;, &quot;character&quot;, &quot;character&quot;, &quot;character&quot;))
+PUMATractDecoderCA &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot;]
 PUMATractDecoder &lt;- PUMATractDecoder[PUMATractDecoder$STATEFP == &quot;06&quot; &amp; (PUMATractDecoder$PUMA5CE == 
     &quot;08303&quot; | PUMATractDecoder$PUMA5CE == &quot;11104&quot; | PUMATractDecoder$PUMA5CE == &quot;11103&quot; | 
     PUMATractDecoder$PUMA5CE == &quot;11106&quot;), ]
@@ -525,9 +543,6 @@ PUMATractDecoder$GEOID &lt;- paste(PUMATractDecoder$STATEFP, PUMATractDecoder$CO
     PUMATractDecoder$TRACTCE, sep = &quot;&quot;)
 
 CensusPop &lt;- merge(x = CensusPop, y = PUMATractDecoder, by = &quot;GEOID&quot;)
-
-CensusPop$SampleCount &lt;- 0
-
 
 MarketCensusSB &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 8303)
 MarketCensus11103 &lt;- subset(MarketCensus, subset = MarketCensus$PUMA == 11103)
@@ -713,6 +728,8 @@ for (i in 1:nrow(MarketCensus)) {
         CensusPop$ID]
 }
 
+MarketCensus$TransportationMode[is.na(MarketCensus$TransportationMode)] &lt;- &quot;Driving&quot;
+
 MarketCensus$CommuteTime &lt;- NULL
 for (i in 1:nrow(MarketCensus)) {
     if (is.na(MarketCensus$TransportationMode[i])) {
@@ -728,13 +745,67 @@ for (i in 1:nrow(MarketCensus)) {
     } else {
         MarketCensus$CommuteTime[i] &lt;- MarketCensus$DriveTime
     }
-}
+}</code></pre>
+<p>Time to make some assumptions about travel. I will be running off of the following assumptions:</p>
+<ul>
+<li>Anybody living in the same Census Tract as the Coworking Space will be able to easily walk or bike to the Coworking Space. I will change 80% of TransportationMode to Walking or Biking.</li>
+<li>Anybody living within the same Census Tract as the Santa Barbara Amtrak Station can take that train to the Coworking Space within 13 minutes. I will change about 25% of those entries to Public Transit and post a CommuteTime of “Yes”.</li>
+<li>Anybody living within the same Census Tract as the Ventura Amtrak station can take that train to the Coworking Space within 20 minutes. I will change about 25% of those entries to Public Transit and post a CommuteTime of “Yes”</li>
+<li>My model assumes anybody who is walking, biking, or taking public transit to work currently will continue to do so to the Coworking Space, however that is not the case. Say, for example, somebody is walking to their current job because it is a 15 minute walk away, however it would take them an hour to walk to the coworking space or a 15 minute drive would elect to drive to the coworking space.</li>
+<li>I will take 80% of entries who are walking, biking, or public transit whose CommuteTime is greater than 30 minutes and convert their method to Driving.</li>
+<li>I will leave the remaining 20% as is to represent folks who may not have access to a car or else enjoy the fact they can walk or bike to work.</li>
+<li>Anybody who is employed and has an NA for TransportationMode will be placed in the Driving category.</li>
+<li>Anybody listed as HomeOffice will have their commute represented by DriveTime.</li>
+</ul>
+<pre class="r"><code>MarketCensus$CommuteTime &lt;- MarketCensus$CommuteTime/60
+WalkBikeTrans &lt;- MarketCensus[(MarketCensus$TransportationMode == &quot;Walking&quot; | MarketCensus$TransportationMode == 
+    &quot;Biking&quot; | MarketCensus$TransportationMode == &quot;Public Transit&quot;) &amp; MarketCensus$CommuteTime &gt; 
+    30, ]
+WalkBikeTrans$Random &lt;- c(1:nrow(WalkBikeTrans))
+WalkBikeTrans$Random &lt;- sample.split(WalkBikeTrans$Random, SplitRatio = 0.8)
+WalkBikeTrans$TransportationMode[WalkBikeTrans$Random == TRUE] &lt;- &quot;Driving&quot;
+WalkBikeTrans$CommuteTime[WalkBikeTrans$Random == TRUE] &lt;- WalkBikeTrans$DriveTime/60</code></pre>
+<pre><code>## Warning in WalkBikeTrans$CommuteTime[WalkBikeTrans$Random == TRUE] &lt;-
+## WalkBikeTrans$DriveTime/60: number of items to replace is not a multiple of
+## replacement length</code></pre>
+<pre class="r"><code>WalkBikeTrans &lt;- subset(WalkBikeTrans, select = -Random)
+MarketCensus &lt;- subset(MarketCensus, subset = (MarketCensus$TransportationMode != 
+    &quot;Walking&quot; &amp; MarketCensus$TransportationMode != &quot;Biking&quot; &amp; MarketCensus$TransportationMode != 
+    &quot;Public Transit&quot;) | MarketCensus$CommuteTime &lt;= 30)
+MarketCensus &lt;- rbind(MarketCensus, WalkBikeTrans)
 
-MarketCensus$CommuteTime &lt;- MarketCensus$CommuteTime/60
 MarketCensus$CommuteTime[MarketCensus$CommuteTime &lt;= 20] &lt;- 1
 MarketCensus$CommuteTime[MarketCensus$CommuteTime &gt; 20] &lt;- 21
 MarketCensus$CommuteTime &lt;- as.factor(MarketCensus$CommuteTime)
 levels(MarketCensus$CommuteTime) &lt;- c(&quot;Yes&quot;, &quot;No&quot;)
+
+TractCarp &lt;- MarketCensus[MarketCensus$Location == 26, ]
+TractCarp$Random &lt;- c(1:nrow(TractCarp))
+TractCarp$Random &lt;- sample.split(TractCarp$Random, SplitRatio = 0.8)
+TractCarp$TransportationMode[TractCarp$Random == TRUE] &lt;- &quot;Walking&quot;
+TractCarp &lt;- subset(TractCarp, select = -Random)
+MarketCensus &lt;- subset(MarketCensus, subset = MarketCensus$Location != 26)
+MarketCensus &lt;- rbind(MarketCensus, TractCarp)
+
+TractSBAmtrak &lt;- MarketCensus[MarketCensus$Location == 19 | MarketCensus$Location == 
+    14 | MarketCensus$Location == 15, ]
+TractSBAmtrak$Random &lt;- c(1:nrow(TractSBAmtrak))
+TractSBAmtrak$Random &lt;- sample.split(TractSBAmtrak$Random, SplitRatio = 0.25)
+TractSBAmtrak$TransportationMode[TractSBAmtrak$Random == TRUE] &lt;- &quot;Public Transit&quot;
+TractSBAmtrak$CommuteTime[TractSBAmtrak$Random == TRUE] &lt;- &quot;Yes&quot;
+TractSBAmtrak &lt;- subset(TractSBAmtrak, select = -Random)
+MarketCensus &lt;- subset(MarketCensus, subset = (MarketCensus$Location != 19 &amp; MarketCensus$Location != 
+    14 &amp; MarketCensus$Location != 15))
+MarketCensus &lt;- rbind(MarketCensus, TractSBAmtrak)
+
+TractVentAmtrak &lt;- MarketCensus[MarketCensus$Location == 66, ]
+TractVentAmtrak$Random &lt;- c(1:nrow(TractVentAmtrak))
+TractVentAmtrak$Random &lt;- sample.split(TractVentAmtrak$Random, SplitRatio = 0.25)
+TractVentAmtrak$TransportationMode[TractVentAmtrak$Random == TRUE] &lt;- &quot;Public Transit&quot;
+TractVentAmtrak$CommuteTime[TractVentAmtrak$Random == TRUE] &lt;- &quot;Yes&quot;
+TractVentAmtrak &lt;- subset(TractVentAmtrak, select = -Random)
+MarketCensus &lt;- subset(MarketCensus, subset = MarketCensus$Location != 66)
+MarketCensus &lt;- rbind(MarketCensus, TractVentAmtrak)
 
 MarketCensus &lt;- subset(MarketCensus, select = -c(Location, Tract, DriveTime, BikeTime, 
     TransitTime, WalkTime, ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, 
@@ -745,173 +816,160 @@ MarketCensus &lt;- subset(MarketCensus, select = -c(Location, Tract, DriveTime, 
 <h2>Conclusion to Data Wrangling for Market Area</h2>
 <p>See below the general structure of our data set:</p>
 <pre class="r"><code>head(MarketCensus)</code></pre>
-<pre><code>##     TransportationMode ClassOfWorker    Sex MaritalStatus  HealthInsurance
-## 236            Walking      Employee Female   Not Married Health Insurance
-## 569               &lt;NA&gt;      Employee   Male   Not Married Health Insurance
-## 730             Biking      Employee   Male   Not Married Health Insurance
-## 731             Biking      Employee Female   Not Married Health Insurance
-## 806               &lt;NA&gt;          &lt;NA&gt;   Male       Married Health Insurance
-## 807               &lt;NA&gt;          &lt;NA&gt; Female       Married Health Insurance
-##     EducationLevel      HomeOffice AgeBracket OccupationType
-## 236         Master Not Home Office      30-39          Other
-## 569    High School Not Home Office      40-49          Other
-## 730    High School Not Home Office      18-29       Research
-## 731    High School Not Home Office      18-29       Research
-## 806       Bachelor Not Home Office        60+           &lt;NA&gt;
-## 807       Bachelor Not Home Office        60+           &lt;NA&gt;
-##     RelativeIncome CommuteTime
-## 236     Rather Low          No
-## 569       Very Low        &lt;NA&gt;
-## 730       Very Low          No
-## 731       Very Low          No
-## 806    Rather High        &lt;NA&gt;
-## 807    Rather High        &lt;NA&gt;</code></pre>
+<pre><code>##      TransportationMode ClassOfWorker    Sex MaritalStatus
+## 569             Driving      Employee   Male   Not Married
+## 806             Driving          &lt;NA&gt;   Male       Married
+## 807             Driving          &lt;NA&gt; Female       Married
+## 1603            Driving      Employee Female   Not Married
+## 1921            Driving          &lt;NA&gt; Female   Not Married
+## 1942        Home Office      Employee   Male       Married
+##       HealthInsurance EducationLevel      HomeOffice AgeBracket
+## 569  Health Insurance    High School Not Home Office      40-49
+## 806  Health Insurance       Bachelor Not Home Office        60+
+## 807  Health Insurance       Bachelor Not Home Office        60+
+## 1603 Health Insurance         Master Not Home Office      18-29
+## 1921 Health Insurance    High School Not Home Office      18-29
+## 1942 Health Insurance       Bachelor     Home Office      40-49
+##         OccupationType          RelativeIncome CommuteTime
+## 569              Other                Very Low          No
+## 806               &lt;NA&gt;             Rather High          No
+## 807               &lt;NA&gt;             Rather High          No
+## 1603         Education Somewhere In The Middle          No
+## 1921              &lt;NA&gt;                Very Low          No
+## 1942 Higher Management Somewhere In The Middle         Yes</code></pre>
 <pre class="r"><code>tail(MarketCensus)</code></pre>
-<pre><code>##        TransportationMode ClassOfWorker    Sex
-## 375092               &lt;NA&gt;          &lt;NA&gt; Female
-## 375558            Driving      Employee   Male
-## 375654            Driving      Employee Female
-## 375990            Driving      Employee   Male
-## 375991            Driving      Employee Female
-## 375992            Driving      Employee Female
-##                       MaritalStatus  HealthInsurance EducationLevel
-## 375092                  Not Married Health Insurance         Master
-## 375558 Separated, Divorced, Widowed Health Insurance       Bachelor
-## 375654                  Not Married Health Insurance    High School
-## 375990                      Married Health Insurance    High School
-## 375991                      Married Health Insurance    High School
-## 375992                  Not Married Health Insurance    High School
-##             HomeOffice AgeBracket OccupationType          RelativeIncome
-## 375092 Not Home Office        60+           &lt;NA&gt;                Very Low
-## 375558 Not Home Office        60+          Other Somewhere In The Middle
-## 375654 Not Home Office      18-29          Other              Rather Low
-## 375990 Not Home Office      50-59          Other Somewhere In The Middle
-## 375991 Not Home Office      40-49          Other Somewhere In The Middle
-## 375992 Not Home Office      18-29          Other                Very Low
-##        CommuteTime
-## 375092        &lt;NA&gt;
-## 375558          No
-## 375654          No
-## 375990          No
-## 375991          No
-## 375992          No</code></pre>
-<table style="width:79%;">
-<colgroup>
-<col width="79%"></col>
-</colgroup>
-<tbody>
-<tr class="odd">
-<td align="left"># Creating Training Data In order to run a successful scoring system, we must create a training set of data. In order to do this, I will create a data set of 100 observations using the breakdown of the 2017 Global Coworking Survey and each assign them a “1” in a new category called “CoworkingMember”. This indicates that these people are indeed customers of coworking spaces. I will then take the total population of California and divide that by the number of coworking space members in the state of California. Multiplying that number by 100, we should get the total number of observations of non-coworking individuals in our training data set. That number will be big enough that we shouldn’t see problems with bias in sample size, so we will extract at random that number of samples from our huge file of 1% of the California population. These will have assignments of “0” in the “CoworkingMember” column. Our training data should then be complete, with the same ratio of coworking members to non-coworking members that we see in real life.</td>
-</tr>
-<tr class="even">
-<td align="left">Alternatively, should we want to make a less biased sample size, we could create more than 100 observations of CoworkingMember set to 1 and then attach that to the full 300,000 count sample of the population of California.</td>
-</tr>
-<tr class="odd">
-<td align="left">## Creating Coworker Member Profiles ### Mode of Transportation and Distance to Coworking Space Mode of Transportation should be pretty easy to simulate. We will make 51 drivers, 22 cyclists, 19 walkers, and 8 Public Transportation Users.</td>
-</tr>
-<tr class="even">
-<td align="left">```r TransportationMode &lt;- c(rep(“Driving”, times = 51), rep(“Public Transit”, times = 8), rep(“Biking”, times = 22), rep(“Walking”, times = 19))</td>
-</tr>
-<tr class="odd">
-<td align="left">CommuteTime &lt;- c(rep(“Yes”, times = 81), rep(“No”, times = 19)) ```</td>
-</tr>
-<tr class="even">
-<td align="left">### Age of Member</td>
-</tr>
-<tr class="odd">
-<td align="left"><code>r AgeBracket &lt;- c(rep(&quot;18-29&quot;, times = 28), rep(&quot;30-39&quot;, times = 39), rep(&quot;40-49&quot;, times = 19), rep(&quot;50-59&quot;, times = 13), &quot;60+&quot;)</code></td>
-</tr>
-<tr class="even">
-<td align="left">### Job Status</td>
-</tr>
-<tr class="odd">
-<td align="left">```r ClassOfWorker &lt;- c(rep(“Employee”, times = 51), rep(“Freelancer”, times = 32), rep(“Entrepreneur”, times = 12), rep(“Other”, times = 5))</td>
-</tr>
-<tr class="even">
-<td align="left">OccupationType &lt;- c(rep(“Art”, times = 3), rep(“Business Development”, times = 8), rep(“Design”, times = 10), rep(“Education”, times = 5), rep(“Higher Management”, times = 7), rep(“IT”, times = 31), rep(“Other”, times = 16), rep(“PR, Marketing, Sales, Advertising”, times = 8), rep(“Research”, times = 7), rep(“Writing”, times = 5)) ```</td>
-</tr>
-<tr class="odd">
-<td align="left">### Gender</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r Sex &lt;- c(rep(&quot;Male&quot;, times = 60), rep(&quot;Female&quot;, times = 40))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Relationship Status</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r MaritalStatus &lt;- c(rep(&quot;Married&quot;, times = 47), rep(&quot;Separated, Divorced, Widowed&quot;, times = 7), rep(&quot;Not Married&quot;, times = 41), rep(NA, times = 5))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Health Insurance</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r HealthInsurance &lt;- c(rep(&quot;Health Insurance&quot;, times = 87), rep(&quot;No Health Insurance&quot;, times = 13))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Last Place of Work</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r HomeOffice &lt;- c(rep(&quot;Not Home Office&quot;, times = 56), rep(&quot;Home Office&quot;, time = 44))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Highest Level of School Education</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r EducationLevel &lt;- c(&quot;No Education&quot;, rep(&quot;High School&quot;, times = 10), rep(&quot;Bachelor&quot;, times = 41), rep(&quot;Master&quot;, times = 41), rep(&quot;Doctoral or Higher&quot;, times = 4), rep(NA, times = 3))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Relative Income</td>
-</tr>
-<tr class="even">
-<td align="left"><code>r RelativeIncome &lt;- c(rep(&quot;Rather High&quot;, times = 34), rep(&quot;Rather Low&quot;, times = 9), rep(&quot;Somewhere In The Middle&quot;, times = 45), rep(&quot;Very High&quot;, times = 5), &quot;Very Low&quot;, rep(NA, times = 6))</code></td>
-</tr>
-<tr class="odd">
-<td align="left">### Coworker Profiles</td>
-</tr>
-<tr class="even">
-<td align="left">```r TrainCensus &lt;- data.frame(TransportationMode)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, CommuteTime)</td>
-</tr>
-<tr class="even">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, AgeBracket)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, ClassOfWorker)</td>
-</tr>
-<tr class="even">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, OccupationType)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, Sex)</td>
-</tr>
-<tr class="even">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, MaritalStatus)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, HealthInsurance)</td>
-</tr>
-<tr class="even">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, HomeOffice)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, EducationLevel)</td>
-</tr>
-<tr class="even">
-<td align="left">TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ] TrainCensus &lt;- data.frame(TrainCensus, RelativeIncome)</td>
-</tr>
-<tr class="odd">
-<td align="left">TrainCensus$CoworkMember &lt;- 1 ```</td>
-</tr>
-</tbody>
-</table>
+<pre><code>##      TransportationMode ClassOfWorker  Sex MaritalStatus HealthInsurance
+## NA       Public Transit          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+## NA.1     Public Transit          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+## NA.2               &lt;NA&gt;          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+## NA.3               &lt;NA&gt;          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+## NA.4               &lt;NA&gt;          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+## NA.5               &lt;NA&gt;          &lt;NA&gt; &lt;NA&gt;          &lt;NA&gt;            &lt;NA&gt;
+##      EducationLevel HomeOffice AgeBracket OccupationType RelativeIncome
+## NA             &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+## NA.1           &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+## NA.2           &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+## NA.3           &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+## NA.4           &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+## NA.5           &lt;NA&gt;       &lt;NA&gt;       &lt;NA&gt;           &lt;NA&gt;           &lt;NA&gt;
+##      CommuteTime
+## NA           Yes
+## NA.1         Yes
+## NA.2        &lt;NA&gt;
+## NA.3        &lt;NA&gt;
+## NA.4        &lt;NA&gt;
+## NA.5        &lt;NA&gt;</code></pre>
+<pre class="r"><code>write.table(x = MarketCensus, file = &quot;Springboard Deliverables/Market Census Final Data.txt&quot;, 
+    row.names = FALSE)</code></pre>
+</div>
+</div>
+<div id="creating-training-data" class="section level1">
+<h1>Creating Training Data</h1>
+<p>In order to run a successful scoring system, we must create a training set of data. In order to do this, I will create a data set of 100 observations using the breakdown of the 2017 Global Coworking Survey and each assign them a “1” in a new category called “CoworkingMember”. This indicates that these people are indeed customers of coworking spaces. I will then take the total population of California and divide that by the number of coworking space members in the state of California. Multiplying that number by 100, we should get the total number of observations of non-coworking individuals in our training data set. That number will be big enough that we shouldn’t see problems with bias in sample size, so we will extract at random that number of samples from our huge file of 1% of the California population. These will have assignments of “0” in the “CoworkingMember” column. Our training data should then be complete, with the same ratio of coworking members to non-coworking members that we see in real life.</p>
+<p>Alternatively, should we want to make a less biased sample size, we could create more than 100 observations of CoworkingMember set to 1 and then attach that to the full 300,000 count sample of the population of California.</p>
+<div id="creating-coworker-member-profiles" class="section level2">
+<h2>Creating Coworker Member Profiles</h2>
+<div id="mode-of-transportation-and-distance-to-coworking-space" class="section level3">
+<h3>Mode of Transportation and Distance to Coworking Space</h3>
+<p>Mode of Transportation should be pretty easy to simulate. We will make 51 drivers, 22 cyclists, 19 walkers, and 8 Public Transportation Users.</p>
+<pre class="r"><code>TransportationMode &lt;- c(rep(&quot;Driving&quot;, times = 51 * 2), rep(&quot;Public Transit&quot;, times = 8 * 
+    2), rep(&quot;Biking&quot;, times = 22 * 2), rep(&quot;Walking&quot;, times = 19 * 2))
+
+
+CommuteTime &lt;- c(rep(&quot;Yes&quot;, times = 81 * 2), rep(&quot;No&quot;, times = 19 * 2))</code></pre>
+</div>
+<div id="age-of-member-1" class="section level3">
+<h3>Age of Member</h3>
+<pre class="r"><code>AgeBracket &lt;- c(rep(&quot;18-29&quot;, times = 28 * 2), rep(&quot;30-39&quot;, times = 39 * 2), rep(&quot;40-49&quot;, 
+    times = 19 * 2), rep(&quot;50-59&quot;, times = 13 * 2), &quot;60+&quot;, &quot;60+&quot;)</code></pre>
+</div>
+<div id="job-status-1" class="section level3">
+<h3>Job Status</h3>
+<pre class="r"><code>ClassOfWorker &lt;- c(rep(&quot;Employee&quot;, times = 51 * 2), rep(&quot;Freelancer&quot;, times = 32 * 
+    2), rep(&quot;Entrepreneur&quot;, times = 12 * 2), rep(&quot;Other&quot;, times = 5 * 2))
+
+OccupationType &lt;- c(rep(&quot;Art&quot;, times = 3 * 2), rep(&quot;Business Development&quot;, times = 8 * 
+    2), rep(&quot;Design&quot;, times = 10 * 2), rep(&quot;Education&quot;, times = 5 * 2), rep(&quot;Higher Management&quot;, 
+    times = 7 * 2), rep(&quot;IT&quot;, times = 31 * 2), rep(&quot;Other&quot;, times = 16 * 2), rep(&quot;PR, Marketing, Sales, Advertising&quot;, 
+    times = 8 * 2), rep(&quot;Research&quot;, times = 7 * 2), rep(&quot;Writing&quot;, times = 5 * 2))</code></pre>
+</div>
+<div id="gender-2" class="section level3">
+<h3>Gender</h3>
+<pre class="r"><code>Sex &lt;- c(rep(&quot;Male&quot;, times = 60 * 2), rep(&quot;Female&quot;, times = 40 * 2))</code></pre>
+</div>
+<div id="relationship-status-2" class="section level3">
+<h3>Relationship Status</h3>
+<pre class="r"><code>MaritalStatus &lt;- c(rep(&quot;Married&quot;, times = 47 * 2), rep(&quot;Separated, Divorced, Widowed&quot;, 
+    times = 7 * 2), rep(&quot;Not Married&quot;, times = 41 * 2), rep(NA, times = 5 * 2))</code></pre>
+</div>
+<div id="health-insurance" class="section level3">
+<h3>Health Insurance</h3>
+<pre class="r"><code>HealthInsurance &lt;- c(rep(&quot;Health Insurance&quot;, times = 87 * 2), rep(&quot;No Health Insurance&quot;, 
+    times = 13 * 2))</code></pre>
+</div>
+<div id="last-place-of-work" class="section level3">
+<h3>Last Place of Work</h3>
+<pre class="r"><code>HomeOffice &lt;- c(rep(&quot;Not Home Office&quot;, times = 56 * 2), rep(&quot;Home Office&quot;, time = 44 * 
+    2))</code></pre>
+</div>
+<div id="highest-level-of-school-education-1" class="section level3">
+<h3>Highest Level of School Education</h3>
+<pre class="r"><code>EducationLevel &lt;- c(&quot;No Education&quot;, &quot;No Education&quot;, rep(&quot;High School&quot;, times = 10 * 
+    2), rep(&quot;Bachelor&quot;, times = 41 * 2), rep(&quot;Master&quot;, times = 41 * 2), rep(&quot;Doctoral or Higher&quot;, 
+    times = 4 * 2), rep(NA, times = 3 * 2))</code></pre>
+</div>
+<div id="relative-income-1" class="section level3">
+<h3>Relative Income</h3>
+<pre class="r"><code>RelativeIncome &lt;- c(rep(&quot;Rather High&quot;, times = 34 * 2), rep(&quot;Rather Low&quot;, times = 9 * 
+    2), rep(&quot;Somewhere In The Middle&quot;, times = 45 * 2), rep(&quot;Very High&quot;, times = 5 * 
+    2), &quot;Very Low&quot;, &quot;Very Low&quot;, rep(NA, times = 6 * 2))</code></pre>
+</div>
+<div id="coworker-profiles" class="section level3">
+<h3>Coworker Profiles</h3>
+<pre class="r"><code>TrainCensus &lt;- data.frame(TransportationMode)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, CommuteTime)
+names(TrainCensus) &lt;- c(&quot;TransportationMode&quot;, &quot;CommuteTime&quot;)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, AgeBracket)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, ClassOfWorker)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, OccupationType)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, Sex)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, MaritalStatus)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, HealthInsurance)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, HomeOffice)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, EducationLevel)
+
+TrainCensus &lt;- TrainCensus[sample(nrow(TrainCensus)), ]
+TrainCensus &lt;- data.frame(TrainCensus, RelativeIncome)
+
+
+TrainCensus$CoworkMember &lt;- 1</code></pre>
+</div>
 </div>
 <div id="creating-non-member-profiles" class="section level2">
 <h2>Creating Non-Member Profiles</h2>
-<p>We will now create non-member profiles from a complete sample of the California population.</p>
-<pre class="r"><code>Census &lt;- subset(Census, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, 
+<p>We will now create non-member profiles from a complete sample of the Los Angeles population.</p>
+<pre class="r"><code>Census$PUMA &lt;- as.character(Census$PUMA)
+Census &lt;- subset(Census, subset = substr(Census$PUMA, 1, 2) == &quot;37&quot;)
+
+Census &lt;- subset(Census, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, 
     SCHL, PINCP, ADJINC, PUMA))
 
 
@@ -1007,9 +1065,88 @@ Census$RelativeIncome &lt;- as.factor(Census$RelativeIncome)
 
 Census$CoworkMember &lt;- 0
 
-Census &lt;- subset(Census, select = -c(ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, 
+Census &lt;- subset(Census, select = -c(ArrivalTime, Age, Occupation, IncomeAdjuster, 
     PUMA))</code></pre>
+<div id="commute-time-to-nearest-coworking-space" class="section level3">
+<h3>Commute Time to nearest Coworking Space</h3>
+<pre class="r"><code>CensusPopCA &lt;- subset(CensusPopCA, subset = CensusPopCA$County == &quot;037&quot; &amp; !is.na(CensusPopCA$AverageIncome))
+CensusPopCA$ID &lt;- c(1:nrow(CensusPopCA))
+CensusPopCA2 &lt;- CensusPopCA
+PopTotalCA &lt;- sum(CensusPopCA$Population)
+SampleTotalCA &lt;- nrow(Census)
+CensusPopCA2$SampleSize &lt;- ceiling((CensusPopCA2$Population/PopTotalCA) * SampleTotalCA)
+
+
+for (i in 1:nrow(Census)) {
+    if (is.na(Census$TotalIncome[i])) {
+        Census$Location[i] &lt;- NA
+    } else {
+        Census$Location[i] &lt;- CensusPopCA2$ID[which.min(abs(Census$TotalIncome[i] - 
+            CensusPopCA2$AverageIncome))]
+        CensusPopCA2$SampleCount[CensusPopCA2$ID == Census$Location[i]] &lt;- CensusPopCA2$SampleCount[CensusPopCA2$ID == 
+            Census$Location[i]] + 1
+        if (CensusPopCA2$SampleCount[CensusPopCA2$ID == Census$Location[i]] &gt;= CensusPopCA2$SampleSize[CensusPopCA2$ID == 
+            Census$Location[i]]) {
+            CensusPopCA2 &lt;- subset(CensusPopCA2, subset = CensusPopCA2$ID != Census$Location[i])
+        }
+    }
+}
+
+CensusPopCA &lt;- merge(x = CensusPopCA, y = CensusLoc, by = &quot;GEOID&quot;)</code></pre>
+<p>We must now extract the list of all Coworking Spaces in LA County in order to determine if our citizens are within a 20 minute drive of a coworking space. We will do this by using coworker.com API to request every listed coworking space within a 150 Kilometer radius of the center point of Los Angeles County. Since there are over 2,000 census tracts, we cannot run a Google Maps search on all coworking spaces for each census tract, so we will run an algorithm that will determine the closest coworking space by Euclidean distance to each Census Tract. Then we will run the Google Maps API only 2,307 times instead of 2,307 * 130 times in order to fit within our daily quota of Google Maps calls per day. Please note that I will not be actually running this in the RMarkdown document, only displaying it, so as to reduce the number of calls to my API partner, coworker.com.</p>
+<pre class="r"><code>x1 &lt;- GET(url = &quot;https://www.coworker.com/api/nearbyspaces/format/json?lat=34.332393&amp;lon=-118.170937&amp;rad=150&quot;)
+Coworking &lt;- as.data.frame(fromJSON(content(x1, as = &quot;text&quot;)))</code></pre>
+<pre class="r"><code>Coworking &lt;- as.data.frame(read.table(file = &quot;Starting Point Data Files/CoworkingLA&quot;, 
+    header = TRUE))
+
+for (i in 1:nrow(CensusPopCA)) {
+    ID &lt;- NULL
+    Distance &lt;- NULL
+    for (p in 1:nrow(Coworking)) {
+        y &lt;- Coworking$cs_id[p]
+        x &lt;- sqrt((CensusPopCA$INTPTLAT[i] - Coworking$latitude[p])^2 + (CensusPopCA$INTPTLONG[i] - 
+            Coworking$longitude[p])^2)
+        ID &lt;- c(ID, y)
+        Distance &lt;- c(Distance, x)
+    }
+    dfclose &lt;- data.frame(ID, Distance)
+    CensusPopCA$Closest[i] &lt;- dfclose$ID[which.min(dfclose$Distance)]
+}
+
+CensusPopCA$GoogleInput &lt;- paste(CensusPopCA$INTPTLAT, CensusPopCA$INTPTLONG, sep = &quot;+&quot;)
+Coworking &lt;- subset(Coworking, select = c(cs_id, latitude, longitude))
+CensusPopCA &lt;- merge(x = CensusPopCA, y = Coworking, by.x = &quot;Closest&quot;, by.y = &quot;cs_id&quot;)
+CensusPopCA$SpaceInput &lt;- paste(CensusPopCA$latitude, CensusPopCA$longitude, sep = &quot;+&quot;)</code></pre>
+<pre class="r"><code>set.api.key(&quot;AIzaSyDr7XpI24NrDVnAZIgDkj32zhm3q0Z8Xcg&quot;)
+TrainDriveTime &lt;- gmapsdistance(origin = CensusPopCA$GoogleInput, destination = CensusPopCA$SpaceInput, 
+    combinations = &quot;pairwise&quot;, mode = &quot;driving&quot;, arr_date = tomorrow, arr_time = &quot;17:00:00&quot;)
+
+TrainDriveTime$Time$or &lt;- as.character(TrainDriveTime$Time$or)
+TrainDriveTime$Time &lt;- subset(TrainDriveTime$Time, select = -de)
+names(TrainDriveTime$Time) &lt;- c(&quot;GoogleInput&quot;, &quot;DrivingTime&quot;)
+CensusPopCA &lt;- merge(x = CensusPopCA, y = TrainDriveTime$Time, by = &quot;GoogleInput&quot;)
+CensusPopCA$DrivingTime &lt;- CensusPopCA$DrivingTime/60
+write.table(x = CensusPopCA, file = &quot;Starting Point Data Files/CensusPopCA&quot;)</code></pre>
+<pre class="r"><code>CensusPopCA &lt;- read.table(file = &quot;Starting Point Data Files/CensusPopCA&quot;, header = TRUE)
+CensusPopMerge &lt;- subset(CensusPopCA, select = c(ID, DrivingTime))
+Census &lt;- merge(x = Census, y = CensusPopMerge, by.x = &quot;Location&quot;, by.y = &quot;ID&quot;)
+
+colnames(Census)[colnames(Census) == &quot;DrivingTime&quot;] &lt;- &quot;CommuteTime&quot;
+Census$CommuteTime[Census$CommuteTime &lt;= 20] &lt;- 1
+Census$CommuteTime[Census$CommuteTime &gt; 20] &lt;- 21
+Census$CommuteTime &lt;- as.factor(Census$CommuteTime)
+levels(Census$CommuteTime) &lt;- c(&quot;Yes&quot;, &quot;No&quot;)
+
+Census &lt;- subset(Census, select = -c(Location, TotalIncome))
+TrainCensus &lt;- rbind(TrainCensus, Census)</code></pre>
 </div>
+</div>
+</div>
+<div id="running-a-linear-regression-on-training-data" class="section level1">
+<h1>Running a Linear Regression on Training Data</h1>
+<pre class="r"><code>model &lt;- lm(CoworkMember ~ TransportationMode + AgeBracket + ClassOfWorker + OccupationType + 
+    Sex + MaritalStatus + HealthInsurance + HomeOffice + EducationLevel + RelativeIncome, 
+    data = TrainCensus)</code></pre>
 </div>
 
 

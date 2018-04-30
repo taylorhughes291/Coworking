@@ -1,0 +1,267 @@
+---
+title: "Creating Training Data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+------------------------------------------------
+# Creating Training Data
+In order to run a successful scoring system, we must create a training set of data. In order to do this, I will create a data set of 100 observations using the breakdown of the 2017 Global Coworking Survey and each assign them a "1" in a new category called "CoworkingMember". This indicates that these people are indeed customers of coworking spaces. I will then take the total population of California and divide that by the number of coworking space members in the state of California. Multiplying that number by 100, we should get the total number of observations of non-coworking individuals in our training data set. That number will be big enough that we shouldn't see problems with bias in sample size, so we will extract at random that number of samples from our huge file of 1% of the California population. These will have assignments of "0" in the "CoworkingMember" column. Our training data should then be complete, with the same ratio of coworking members to non-coworking members that we see in real life.
+
+Alternatively, should we want to make a less biased sample size, we could create more than 100 observations of CoworkingMember set to 1 and then attach that to the full 300,000 count sample of the population of California.
+
+## Creating Coworker Member Profiles
+### Mode of Transportation and Distance to Coworking Space
+Mode of Transportation should be pretty easy to simulate. We will make 51 drivers, 22 cyclists, 19 walkers, and 8 Public Transportation Users.
+```{r}
+TransportationMode <- c(rep("Driving", times = 51), rep("Public Transit", times = 8), rep("Biking", times = 22), rep("Walking", times = 19))
+
+
+CommuteTime <- c(rep("Yes", times = 81), rep("No", times = 19))
+```
+
+### Age of Member
+```{r}
+AgeBracket <- c(rep("18-29", times = 28), rep("30-39", times = 39), rep("40-49", times = 19), rep("50-59", times = 13), "60+")
+```
+
+### Job Status
+```{r}
+ClassOfWorker <- c(rep("Employee", times = 51), rep("Freelancer", times = 32), rep("Entrepreneur", times = 12), rep("Other", times = 5))
+
+OccupationType <- c(rep("Art", times = 3), 
+                    rep("Business Development", times = 8), 
+                    rep("Design", times = 10),
+                    rep("Education", times = 5),
+                    rep("Higher Management", times = 7),
+                    rep("IT", times = 31),
+                    rep("Other", times = 16),
+                    rep("PR, Marketing, Sales, Advertising", times = 8),
+                    rep("Research", times = 7),
+                    rep("Writing", times = 5))
+```
+
+### Gender
+```{r}
+Sex <- c(rep("Male", times = 60), rep("Female", times = 40))
+```
+
+### Relationship Status
+```{r}
+MaritalStatus <- c(rep("Married", times = 47),
+                   rep("Separated, Divorced, Widowed", times = 7),
+                   rep("Not Married", times = 41),
+                   rep(NA, times = 5))
+```
+
+### Health Insurance
+```{r}
+HealthInsurance <- c(rep("Health Insurance", times = 87),
+                     rep("No Health Insurance", times = 13))
+```
+
+### Last Place of Work
+```{r}
+HomeOffice <- c(rep("Not Home Office", times = 56),
+                rep("Home Office", time = 44))
+```
+
+### Highest Level of School Education
+```{r}
+EducationLevel <- c("No Education",
+                    rep("High School", times = 10),
+                    rep("Bachelor", times = 41),
+                    rep("Master", times = 41),
+                    rep("Doctoral or Higher", times = 4),
+                    rep(NA, times = 3))
+```
+
+### Relative Income
+```{r}
+RelativeIncome <- c(rep("Rather High", times = 34),
+                    rep("Rather Low", times = 9),
+                    rep("Somewhere In The Middle", times = 45),
+                    rep("Very High", times = 5),
+                    "Very Low",
+                    rep(NA, times = 6))
+```
+
+### Coworker Profiles
+```{r}
+TrainCensus <- data.frame(TransportationMode)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, CommuteTime)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, AgeBracket)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, ClassOfWorker)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, OccupationType)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, Sex)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, MaritalStatus)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, HealthInsurance)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, HomeOffice)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, EducationLevel)
+
+TrainCensus <- TrainCensus[sample(nrow(TrainCensus)),]
+TrainCensus <- data.frame(TrainCensus, RelativeIncome)
+
+
+TrainCensus$CoworkMember <- 1
+```
+
+--------------------------------------------------------------------
+
+## Creating Non-Member Profiles
+We will now create non-member profiles from a complete sample of the California population.
+
+```{r}
+Census <- subset(Census, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
+
+
+names(Census) <- c("TransportationMode", "ArrivalTime", "Age", "ClassOfWorker", "Occupation", "Sex", "MaritalStatus", "HealthInsurance", "EducationLevel", "TotalIncome", "IncomeAdjuster", "PUMA")
+
+Census$HomeOffice <- ifelse(Census$TransportationMode == 11, 1, 0)
+Census$HomeOffice[is.na(Census$HomeOffice)] <- 0
+
+Census$TransportationMode <- as.factor(Census$TransportationMode)
+levels(Census$TransportationMode) <- c("Driving", 
+                                       "Public Transit", 
+                                       "Public Transit",
+                                       "Public Transit",
+                                       "Public Transit",
+                                       NA,
+                                       "Driving", 
+                                       "Driving", 
+                                       "Biking", 
+                                       "Walking",
+                                       "Home Office", 
+                                       NA)
+
+Census <- subset(Census, subset = Census$Age >= 18)
+
+Census$Age[Census$Age >= 18 & Census$Age <= 29] <- 18
+Census$Age[Census$Age >= 30 & Census$Age <= 39] <- 30
+Census$Age[Census$Age >= 40 & Census$Age <= 49] <- 40
+Census$Age[Census$Age >= 50 & Census$Age <= 59] <- 50
+Census$Age[Census$Age >= 60] <- 60
+
+Census$Age <- as.factor(Census$Age)
+levels(Census$Age) <- c("18-29", "30-39", "40-49", "50-59", "60+")
+Census$AgeBracket <- Census$Age
+
+Census$ClassOfWorker <- as.factor(Census$ClassOfWorker)
+levels(Census$ClassOfWorker) <- c("Employee", "Employee", "Employee", "Employee", "Employee", "Freelancer", "Entrepreneur", "Other", NA)
+
+Census$Occupation[is.na(Census$Occupation)] <- 0
+Census$Occupation[(Census$Occupation >= 1006 & Census$Occupation <= 1200) | 
+                  Census$Occupation == 1240] <- 1006
+Census$Occupation[(Census$Occupation >= 40 & Census$Occupation <= 60) |
+                  Census$Occupation == 735 | 
+                  Census$Occupation == 2825 |
+                  Census$Occupation == 4800 |
+                  (Census$Occupation >= 4840 & Census$Occupation <= 4930) |
+                  Census$Occupation == 4965] <- 2825
+Census$Occupation[Census$Occupation == 1005 |
+                  Census$Occupation == 735 |
+                  Census$Occupation == 1220 |
+                  (Census$Occupation >= 1600 & Census$Occupation <= 1965)] <- 1005
+Census$Occupation[Census$Occupation >= 2840 & Census$Occupation <= 2850] <- 2840
+Census$Occupation[(Census$Occupation >= 510 & Census$Occupation <= 726) |
+                  Census$Occupation == 740] <- 510
+Census$Occupation[Census$Occupation == 2025 |
+                  Census$Occupation == 2050 |
+                  (Census$Occupation >= 2200 & Census$Occupation <= 2550)] <- 2025
+Census$Occupation[(Census$Occupation >= 10 & Census$Occupation <= 20) |
+                  (Census$Occupation >= 100 & Census$Occupation <= 430)] <- 10
+Census$Occupation[Census$Occupation == 500 |
+                  Census$Occupation == 2600 |
+                  (Census$Occupation >= 2700 & Census$Occupation <= 2810) |
+                  Census$Occupation == 2830 |
+                  (Census$Occupation >= 2860 & Census$Occupation <= 2920) |
+                  Census$Occupation == 4000] <- 500
+Census$Occupation[Census$Occupation != 500 &
+                  Census$Occupation != 10 &
+                  Census$Occupation != 2025 &
+                  Census$Occupation != 510 &
+                  Census$Occupation != 2840 &
+                  Census$Occupation != 1005 &
+                  Census$Occupation != 2630 &
+                  Census$Occupation != 2825 &
+                  Census$Occupation != 1006 &
+                  Census$Occupation != 0] <- 800
+
+Census$Occupation <- as.factor(Census$Occupation)
+levels(Census$Occupation) <- c(NA,
+                               "Higher Management", 
+                               "Art", 
+                               "Business Development",
+                               "Other",
+                               "Research",
+                               "IT",
+                               "Education",
+                               "Design",
+                               "PR, Marketing, Sales, Advertising",
+                               "Writing")
+
+
+
+Census$Occupation[Census$ClassOfWorker == "Entrepreneur"] <- "Business Development"
+
+Census$OccupationType <- Census$Occupation
+
+Census$Sex <- as.factor(Census$Sex)
+levels(Census$Sex) <- c("Male", "Female")
+
+Census$MaritalStatus <- as.factor(Census$MaritalStatus)
+levels(Census$MaritalStatus) <- c("Married", "Separated, Divorced, Widowed", "Separated, Divorced, Widowed", "Separated, Divorced, Widowed", "Not Married")
+
+Census$HealthInsurance <- as.factor(Census$HealthInsurance)
+levels(Census$HealthInsurance) <- c("Health Insurance", "No Health Insurance")
+
+Census$HomeOffice <- as.factor(Census$HomeOffice)
+levels(Census$HomeOffice) <- c("Not Home Office", "Home Office")
+
+Census$EducationLevel[Census$EducationLevel == 21 | 
+                            Census$EducationLevel == 23] <- 21
+Census$EducationLevel[Census$EducationLevel >= 16 &
+                            Census$EducationLevel <= 20] <- 16
+Census$EducationLevel[Census$EducationLevel >= 1 &
+                            Census$EducationLevel <= 15] <- 1
+Census$EducationLevel <- as.factor(Census$EducationLevel)
+levels(Census$EducationLevel) <- c("No Education", "High School", "Bachelor", "Master", "Doctoral or Higher")
+
+Census$TotalIncome <- Census$TotalIncome*1.007588
+Census$RelativeIncome[Census$TotalIncome <= 18870] <- "Very Low"
+Census$RelativeIncome[Census$TotalIncome <= 47177 &
+                         Census$TotalIncome >= 18871] <- "Rather Low"
+Census$RelativeIncome[Census$TotalIncome <= 113000 &
+                         Census$TotalIncome >= 47178] <- "Somewhere In The Middle"
+Census$RelativeIncome[Census$TotalIncome <= 349999 &
+                         Census$TotalIncome >= 113001] <- "Rather High"
+Census$RelativeIncome[Census$TotalIncome >= 350000] <- "Very High"
+Census$RelativeIncome <- as.factor(Census$RelativeIncome)
+
+Census$CoworkMember <- 0
+
+Census <- subset(Census, select = -c(ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, PUMA))
+```
+
+## Travel Time to Work

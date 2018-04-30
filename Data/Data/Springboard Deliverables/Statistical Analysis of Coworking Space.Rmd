@@ -1,0 +1,390 @@
+---
+title: "Statistical Analysis of Coworking Space"
+author: "Taylor Hughes"
+date: "4/20/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(caTools)
+library(dplyr)
+```
+
+# Statistical Analyses
+First we will run a comparison on 3 sets of data - 
+
+* Proportions of each statistic for Coworking Members
+* Proportions of each statistic for Non-Coworking Training data
+* Proportions of each statistic for Market Area Data
+
+The outcome of this will allow us to make a hypothesis on:
+
+* Statistics that will have a strong impact on the model
+* Which statistical factors would make our Market Area prove to be a weak market for potential customers
+* Which statistical factors would make our Market Area prove to be a strong market for potential customers
+
+## Distance to Home
+```{r}
+TrainCensus2 <- read.table("TrainCensus2", header = TRUE)
+Census <- read.table("Census", header = TRUE)
+MarketCensus <- read.table("MarketCensus", header = TRUE)
+
+table(TrainCensus2$CommuteTime, useNA = "ifany")
+table(Census$CommuteTime, useNA = "ifany")
+table(MarketCensus$CommuteTime, useNA = "ifany")
+
+
+DTHTrain <- ggplot(TrainCensus2, aes(x="")) + 
+  geom_bar(aes(fill=CommuteTime), position = "fill") + 
+  ggtitle("Coworking Members")
+DTHTrain
+
+DTHCensus <- ggplot(Census, aes(x=factor(0))) + 
+  geom_bar(aes(fill=CommuteTime), position = "fill") +
+  ggtitle("Non-Coworking Members")
+DTHCensus
+
+DTHMarket <- ggplot(MarketCensus, aes(x=factor(0))) + 
+  geom_bar(aes(fill=CommuteTime), position = "fill") +
+  ggtitle("Market Area")
+DTHMarket
+```
+
+## Mode of Transportation
+```{r}
+table(TrainCensus2$TransportationMode, useNA = "ifany")
+table(Census$TransportationMode, useNA = "ifany")
+table(MarketCensus$TransportationMode, useNA = "ifany")
+
+
+MOTTrain <- ggplot(TrainCensus2, aes(x=factor(0))) + 
+  geom_bar(aes(fill=TransportationMode), position = "fill") + 
+  ggtitle("Coworking Members")
+MOTTrain
+
+MOTCensus <- ggplot(subset(Census, subset = !is.na(TransportationMode)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=TransportationMode), position = "fill") +
+  ggtitle("Non-Coworking Members")
+MOTCensus
+
+MOTMarket <- ggplot(MarketCensus, aes(x=factor(0))) + 
+  geom_bar(aes(fill=TransportationMode), position = "fill") +
+  ggtitle("Market Area")
+MOTMarket
+```
+
+## Age of Member
+```{r}
+table(TrainCensus2$AgeBracket, useNA = "ifany")
+table(Census$AgeBracket, useNA = "ifany")
+table(MarketCensus$AgeBracket, useNA = "ifany")
+
+
+AOMTrain <- ggplot(TrainCensus2, aes(x=factor(0))) + 
+  geom_bar(aes(fill=AgeBracket), position = "fill") + 
+  ggtitle("Coworking Members")
+AOMTrain
+
+AOMCensus <- ggplot(subset(Census, subset = !is.na(AgeBracket)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=AgeBracket), position = "fill") +
+  ggtitle("Non-Coworking Members")
+AOMCensus
+
+AOMMarket <- ggplot(MarketCensus, aes(x=factor(0))) + 
+  geom_bar(aes(fill=AgeBracket), position = "fill") +
+  ggtitle("Market Area")
+AOMMarket
+```
+
+## Job Type
+```{r}
+table(TrainCensus2$ClassOfWorker, useNA = "ifany")
+table(Census$ClassOfWorker, useNA = "ifany")
+table(MarketCensus$ClassOfWorker, useNA = "ifany")
+
+
+COWTrain <- ggplot(subset(TrainCensus2, subset = !is.na(ClassOfWorker)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=ClassOfWorker), position = "fill") + 
+  ggtitle("Coworking Members")
+COWTrain
+
+COWCensus <- ggplot(subset(Census, subset = !is.na(ClassOfWorker)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=ClassOfWorker), position = "fill") +
+  ggtitle("Non-Coworking Members")
+COWCensus
+
+COWMarket <- ggplot(subset(MarketCensus, subset = !is.na(ClassOfWorker)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=ClassOfWorker), position = "fill") +
+  ggtitle("Market Area")
+COWMarket
+```
+
+## Profession
+```{r}
+table(TrainCensus2$OccupationType, useNA = "ifany")
+table(Census$OccupationType, useNA = "ifany")
+table(MarketCensus$OccupationType, useNA = "ifany")
+
+
+OTTrain <- ggplot(subset(TrainCensus2, subset = !is.na(OccupationType)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=OccupationType), position = "fill") + 
+  ggtitle("Coworking Members")
+OTTrain
+
+OTCensus <- ggplot(subset(Census, subset = !is.na(OccupationType)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=OccupationType), position = "fill") +
+  ggtitle("Non-Coworking Members")
+OTCensus
+
+OTMarket <- ggplot(subset(MarketCensus, subset = !is.na(OccupationType)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=OccupationType), position = "fill") +
+  ggtitle("Market Area")
+OTMarket
+```
+
+## Gender
+
+```{r}
+table(TrainCensus2$Sex, useNA = "ifany")
+table(Census$Sex, useNA = "ifany")
+table(MarketCensus$Sex, useNA = "ifany")
+
+
+STrain <- ggplot(subset(TrainCensus2, subset = !is.na(Sex)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=Sex), position = "fill") + 
+  ggtitle("Coworking Members")
+STrain
+
+SCensus <- ggplot(subset(Census, subset = !is.na(Sex)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=Sex), position = "fill") +
+  ggtitle("Non-Coworking Members")
+SCensus
+
+SMarket <- ggplot(subset(MarketCensus, subset = !is.na(Sex)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=Sex), position = "fill") +
+  ggtitle("Market Area")
+SMarket
+```
+
+## Relationship Status
+```{r}
+table(TrainCensus2$MaritalStatus, useNA = "ifany")
+table(Census$MaritalStatus, useNA = "ifany")
+table(MarketCensus$MaritalStatus, useNA = "ifany")
+
+
+MSTrain <- ggplot(subset(TrainCensus2, subset = !is.na(MaritalStatus)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=MaritalStatus), position = "fill") + 
+  ggtitle("Coworking Members")
+MSTrain
+
+MSCensus <- ggplot(subset(Census, subset = !is.na(MaritalStatus)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=MaritalStatus), position = "fill") +
+  ggtitle("Non-Coworking Members")
+MSCensus
+
+MSMarket <- ggplot(subset(MarketCensus, subset = !is.na(MaritalStatus)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=MaritalStatus), position = "fill") +
+  ggtitle("Market Area")
+MSMarket
+```
+
+## Health Insurance Status
+```{r}
+table(TrainCensus2$HealthInsurance, useNA = "ifany")
+table(Census$HealthInsurance, useNA = "ifany")
+table(MarketCensus$HealthInsurance, useNA = "ifany")
+
+
+HITrain <- ggplot(subset(TrainCensus2, subset = !is.na(HealthInsurance)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HealthInsurance), position = "fill") + 
+  ggtitle("Coworking Members")
+HITrain
+
+HICensus <- ggplot(subset(Census, subset = !is.na(HealthInsurance)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HealthInsurance), position = "fill") +
+  ggtitle("Non-Coworking Members")
+HICensus
+
+HIMarket <- ggplot(subset(MarketCensus, subset = !is.na(HealthInsurance)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HealthInsurance), position = "fill") +
+  ggtitle("Market Area")
+HIMarket
+```
+
+## Home Office
+```{r}
+table(TrainCensus2$HomeOffice, useNA = "ifany")
+table(Census$HomeOffice, useNA = "ifany")
+table(MarketCensus$HomeOffice, useNA = "ifany")
+
+
+HOTrain <- ggplot(subset(TrainCensus2, subset = !is.na(HomeOffice)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HomeOffice), position = "fill") + 
+  ggtitle("Coworking Members")
+HOTrain
+
+HOCensus <- ggplot(subset(Census, subset = !is.na(HomeOffice)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HomeOffice), position = "fill") +
+  ggtitle("Non-Coworking Members")
+HOCensus
+
+HOMarket <- ggplot(subset(MarketCensus, subset = !is.na(HomeOffice)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=HomeOffice), position = "fill") +
+  ggtitle("Market Area")
+HOMarket
+```
+
+## Education
+```{r}
+table(TrainCensus2$EducationLevel, useNA = "ifany")
+table(Census$EducationLevel, useNA = "ifany")
+table(MarketCensus$EducationLevel, useNA = "ifany")
+
+
+ELTrain <- ggplot(subset(TrainCensus2, subset = !is.na(EducationLevel)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=EducationLevel), position = "fill") + 
+  ggtitle("Coworking Members")
+ELTrain
+
+ELCensus <- ggplot(subset(Census, subset = !is.na(EducationLevel)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=EducationLevel), position = "fill") +
+  ggtitle("Non-Coworking Members")
+ELCensus
+
+ELMarket <- ggplot(subset(MarketCensus, subset = !is.na(EducationLevel)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=EducationLevel), position = "fill") +
+  ggtitle("Market Area")
+ELMarket
+```
+
+## Relative Income
+```{r}
+table(TrainCensus2$RelativeIncome, useNA = "ifany")
+table(Census$RelativeIncome, useNA = "ifany")
+table(MarketCensus$RelativeIncome, useNA = "ifany")
+
+
+RITrain <- ggplot(subset(TrainCensus2, subset = !is.na(RelativeIncome)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=RelativeIncome), position = "fill") + 
+  ggtitle("Coworking Members")
+RITrain
+
+RICensus <- ggplot(subset(Census, subset = !is.na(RelativeIncome)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=RelativeIncome), position = "fill") +
+  ggtitle("Non-Coworking Members")
+RICensus
+
+RIMarket <- ggplot(subset(MarketCensus, subset = !is.na(RelativeIncome)), aes(x=factor(0))) + 
+  geom_bar(aes(fill=RelativeIncome), position = "fill") +
+  ggtitle("Market Area")
+RIMarket
+```
+
+##Conclusions
+Listed below are the observations we've made:
+
+* Shockingly, Distance to Home does not play a large role in predicting Coworking Membership, since the 80% of the Coworking Survey and 80% of LA County all live within a 20 minute drive of their Coworking Space.
+* Far more Coworkers walked and biked to the Coworking Space compared to the average non-Coworker in Los Angeles County. Only around 1% of people in LA bike, with around 3% walking. However, the same proportions of people took Public Transportation.
++ Even fewer people in my targeted market area walk and bike, so I will leave this statistic alone. Seems like this will have a slight negative effect on my Market population.
+* There are more 18-29 year olds proportionally going to Coworking Spaces than exist in the LA County population. There are far more 30-39 year olds in the Coworking Spaces as well.
+* There are vastly more Entrepreneurs, Freelancers, and Other in Coworking Spaces than in LA County.There are vastly less Employees proportionally in Coworking Spaces.
++ The proportion in the Market Area seems to be roughly the same as in LA.
+* There are less Designers, IT workers, PR, Researchers, and Writers in LA County than in Coworking Spaces. There are vastly more "Other" folks in LA County than in Coworking Spaces.
+* There are proportionally more men in Coworking Spaces than in LA County.
+* There are roughly the same proportion of married people, but there are less Unmarried in LA County and more Separated/Divorced/Widowed.
+* There are slightly more uninsured in Coworking Spaces.
+* There are vastly more people in Coworking Spaces who were previously working in Home Offices than there are people working in Home Offices in LA County.
+* There are vastly more people with Bachelors or Masters degrees as their highest educational attainment in Coworking Spaces than in LA County.
++ There are more people with Masters Degrees and PhDs within my Market Area, which will have a positive effect on the model.
+* There are vastly more Somewhere in the Middle, Rather High, and Very High relative incomes in Coworking Spaces than in LA County.
++ The Market Area has more folks Somewhere in the Middle than LA County, which will skew the model positively in our favor.
+
+## Skewing the Training Set
+I will need to skew my data set in order to have a model that has more polar opposites between the non-Coworkers and the Coworkers. While this seems biased, it will exaggerate the scores in a more scalable and readable way. I will then compare my Market Area to an area which I know is a strong Coworking market area and one which is not a strong Coworking market area to see in order to eliminate the bias.
+
+The general approach I will take is this: I will delete a random 50% sample from the non-Coworking data set of whichever categorical variable is the highest in the Coworking data. I will also delete 50% of all non-Coworking observations for which the Coworking categories will be statistically significant.
+
+* I will delete 50% of "Yes" CommuteTime entries
+* I will delete 50% of Drivers, Bikers, and Walkers from "TransportationMode"
+* I will delete 50% of 18-39 year olds from "AgeBracket"
+* I will delete 50% of Entrepreneurs, Freelancers, and Others. I will leave Employees the same since the non-Coworking set has a proportionally much larger proportion than the Coworking set.
+* I will delete 50% of Designers, IT Workers, PR folks, Researchers, and Writers.
+* I will delete 50% of men.
+* I will delete 50% of Married and Unmarried people.
+* I will delete 50% of the uninsured.
+* I will delete 50% of people working out of Home Offices.
+* I will delete 50% of Bachelors and Masters degrees.
+* I will delete 50% of Somewhere in the Middle, Rather High, and Very High.
+
+```{r}
+List <- split(Census, Census$CommuteTime)
+List$Yes <- sample_frac(List$Yes, size = 0.5)
+Census <- rbind(List$Yes, List$No)
+
+Census$Random <- 0
+Census$Random[Census$TransportationMode == "Driving" | Census$TransportationMode == "Biking" | Census$TransportationMode == "Walking"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$AgeBracket == "18-29" | Census$AgeBracket == "30-39"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$ClassOfWorker == "Freelancer" | Census$ClassOfWorker == "Entrepreneur" | Census$ClassOfWorker == "Other"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$OccupationType == "Design" | Census$OccupationType == "IT" | Census$OccupationType == "PR, Marketing, Sales, Advertising" | Census$OccupationType == "Research" | Census$OccupationType == "Writing"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$Sex == "Male"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$MaritalStatus == "Married" | Census$MaritalStatus == "Not Married"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$HealthInsurance == "No Health Insurance"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$HomeOffice == "Not Home Office"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$EducationLevel == "Bachelor" | Census$EducationLevel == "Master"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census$Random <- 0
+Census$Random[Census$RelativeIncome == "Somewhere In The Middle" | Census$RelativeIncome == "Rather High" | Census$RelativeIncome == "Very High"] <- 1
+List <- split(Census, Census$Random)
+List$"1" <- sample_frac(List$"1", size = 0.5)
+Census <- rbind(List$"1", List$"0")
+
+Census <- subset(Census, select = -Random)
+TrainCensus <- rbind(TrainCensus2, Census)
+model2 <- lm(CoworkMember ~ TransportationMode + AgeBracket + ClassOfWorker + OccupationType + Sex + MaritalStatus + HealthInsurance + HomeOffice + EducationLevel + RelativeIncome, data = TrainCensus)
+```

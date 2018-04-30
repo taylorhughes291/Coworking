@@ -145,6 +145,7 @@ install.packages("dplyr")
 install.packages("data.table")
 install.packages("bit64")
 install.packages("gmapsdistance")
+install.packages("rworldmap")
 ```
 
 We can get a sample of data from our market areas by going to the [PUMS Data Website](https://factfinder.census.gov/faces/nav/jsf/pages/searchresults.xhtml?refresh=t) and following these steps:
@@ -167,7 +168,7 @@ MarketCensus <- Census[Census$PUMA == 08303 | Census$PUMA == 11104 | Census$PUMA
 
 MarketCensus <- subset(MarketCensus, select = c(JWTR, JWAP, AGEP, COW, OCCP, SEX, MAR, HICOV, SCHL, PINCP, ADJINC, PUMA))
 
-write.csv(MarketCensus, file = "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv", row.names = FALSE)
+write.csv(MarketCensus, file = "Springboard Deliverables/PUMS Data SB-Ventura County Market Areas.csv", row.names = FALSE)
 ```
 
 I now recommend that you delete the "ss16pca.csv" file from the directory if you plan on sharing your results online or in a repository, due to its size. If you need to reference your information on your market area, you can now access via the file "Starting Point Data Files/PUMS Data SB-Ventura County Market Areas.csv".
@@ -698,7 +699,9 @@ Mode of Transportation should be pretty easy to simulate. We will make 51 driver
 TransportationMode <- c(rep("Driving", times = 51*2), rep("Public Transit", times = 8*2), rep("Biking", times = 22*2), rep("Walking", times = 19*2))
 
 
-CommuteTime <- c(rep("Yes", times = 81*2), rep("No", times = 19*2))
+CommuteTime <- c(rep(1, times = 81*2), rep(2, times = 19*2))
+CommuteTime <- as.factor(CommuteTime)
+levels(CommuteTime) <- c("Yes", "No")
 ```
 
 ### Age of Member
@@ -1031,7 +1034,12 @@ Census$CommuteTime <- as.factor(Census$CommuteTime)
 levels(Census$CommuteTime) <- c("Yes", "No")
 
 Census <- subset(Census, select = -c(Location, TotalIncome))
+TrainCensus2 <- TrainCensus
 TrainCensus <- rbind(TrainCensus, Census)
+
+write.table(TrainCensus2, file = "Springboard Deliverables/TrainCensus2", row.names = FALSE)
+write.table(Census, file = "Springboard Deliverables/Census", row.names = FALSE)
+write.table(MarketCensus, file = "Springboard Deliverables/MarketCensus", row.names = FALSE)
 ```
 
 # Running a Linear Regression on Training Data

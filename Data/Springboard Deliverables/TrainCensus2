@@ -1,0 +1,201 @@
+"TransportationMode" "CommuteTime" "AgeBracket" "ClassOfWorker" "OccupationType" "Sex" "MaritalStatus" "HealthInsurance" "HomeOffice" "EducationLevel" "RelativeIncome" "CoworkMember"
+"Driving" "Yes" "40-49" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "No" "18-29" "Entrepreneur" "Other" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "50-59" "Employee" "Design" "Male" "Not Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Rather High" 1
+"Public Transit" "Yes" "30-39" "Employee" "Writing" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "No" "40-49" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Walking" "No" "30-39" "Freelancer" "IT" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Biking" "Yes" "30-39" "Other" "Other" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "30-39" "Freelancer" "Writing" "Female" "Married" "No Health Insurance" "Not Home Office" NA "Rather High" 1
+"Driving" "Yes" "30-39" "Employee" "Higher Management" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "No" "18-29" "Freelancer" "Higher Management" "Female" "Not Married" "Health Insurance" "Not Home Office" "High School" "Rather High" 1
+"Biking" "Yes" "18-29" "Entrepreneur" "Education" "Female" "Not Married" "Health Insurance" "Home Office" "High School" "Rather High" 1
+"Driving" "Yes" "30-39" "Employee" "Other" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "30-39" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Driving" "No" "30-39" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "40-49" "Employee" "Other" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "40-49" "Freelancer" "IT" "Female" NA "Health Insurance" "Not Home Office" "High School" "Rather High" 1
+"Driving" "No" "18-29" "Employee" "Business Development" "Female" "Not Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Rather High" 1
+"Driving" "Yes" "40-49" "Employee" "Writing" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "40-49" "Freelancer" "Education" "Female" "Not Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Biking" "No" "30-39" "Employee" "IT" "Female" "Married" "Health Insurance" "Not Home Office" "High School" "Rather High" 1
+"Driving" "Yes" "18-29" "Entrepreneur" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Biking" "Yes" "40-49" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "40-49" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "No Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "18-29" "Employee" "Art" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "No" "18-29" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Public Transit" "Yes" "30-39" "Other" "IT" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "No" "18-29" "Employee" "Other" "Female" "Not Married" "Health Insurance" "Not Home Office" NA "Rather High" 1
+"Biking" "Yes" "18-29" "Freelancer" "IT" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Walking" "Yes" "40-49" "Employee" "Research" "Female" "Not Married" "Health Insurance" "Home Office" NA "Rather High" 1
+"Biking" "Yes" "50-59" "Freelancer" "Other" "Female" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Biking" "Yes" "18-29" "Entrepreneur" "Writing" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Public Transit" "Yes" "30-39" "Entrepreneur" "IT" "Female" "Not Married" "No Health Insurance" "Home Office" "High School" "Rather High" 1
+"Driving" "Yes" "40-49" "Freelancer" "Business Development" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "30-39" "Entrepreneur" "Other" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Walking" "Yes" "30-39" "Other" "Research" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Walking" "No" "30-39" "Freelancer" "Other" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "Yes" "18-29" "Freelancer" "Business Development" "Female" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Biking" "No" "30-39" "Employee" "Business Development" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "High School" "Rather High" 1
+"Driving" "Yes" "30-39" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Biking" "Yes" "18-29" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "40-49" "Employee" "Other" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Biking" "Yes" "18-29" "Employee" "Other" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "40-49" "Employee" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Public Transit" "Yes" "40-49" "Entrepreneur" "Design" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Walking" "Yes" "30-39" "Employee" "Writing" "Male" "Not Married" "Health Insurance" "Home Office" "High School" "Rather High" 1
+"Driving" "No" "18-29" "Freelancer" "Research" "Male" "Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Rather High" 1
+"Biking" "Yes" "40-49" "Employee" "Other" "Female" "Not Married" "Health Insurance" "Not Home Office" "High School" "Rather High" 1
+"Biking" "Yes" "18-29" "Employee" "Design" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "30-39" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Walking" "No" "30-39" "Other" "IT" "Male" "Married" "No Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Biking" "Yes" "50-59" "Employee" "Other" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Biking" "Yes" "40-49" "Employee" "Design" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Walking" "Yes" "30-39" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Biking" "Yes" "50-59" "Employee" "Education" "Male" NA "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "40-49" "Employee" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Public Transit" "Yes" "18-29" "Freelancer" "IT" "Female" "Married" "No Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "Yes" "50-59" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "30-39" "Employee" "Higher Management" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "50-59" "Freelancer" "IT" "Male" "Married" "No Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "No" "30-39" "Employee" "Other" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Walking" "Yes" "18-29" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "No" "30-39" "Employee" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather High" 1
+"Walking" "Yes" "30-39" "Employee" "IT" "Female" "Married" "Health Insurance" "Home Office" "Master" "Rather High" 1
+"Walking" "Yes" "18-29" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "Yes" "18-29" "Entrepreneur" "Research" "Male" "Married" "No Health Insurance" "Not Home Office" "Bachelor" "Rather High" 1
+"Driving" "No" "30-39" "Employee" "Education" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Rather High" 1
+"Driving" "No" "50-59" "Employee" "Other" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather Low" 1
+"Walking" "Yes" "40-49" "Freelancer" "Other" "Female" "Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Rather Low" 1
+"Biking" "Yes" "50-59" "Entrepreneur" "Research" "Female" "Not Married" "No Health Insurance" "Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "50-59" "Employee" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "30-39" "Freelancer" "Other" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "18-29" "Freelancer" "Design" "Male" NA "Health Insurance" "Home Office" "High School" "Rather Low" 1
+"Driving" "Yes" "18-29" "Employee" "Research" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather Low" 1
+"Driving" "Yes" "18-29" "Employee" "Business Development" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "40-49" "Entrepreneur" "Design" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Rather Low" 1
+"Driving" "Yes" "30-39" "Freelancer" "Writing" "Female" "Married" "No Health Insurance" "Home Office" "Master" "Rather Low" 1
+"Walking" "Yes" "50-59" "Employee" "Higher Management" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Rather Low" 1
+"Walking" "Yes" "50-59" "Freelancer" "Education" "Female" "Separated, Divorced, Widowed" "No Health Insurance" "Home Office" "Master" "Rather Low" 1
+"Driving" "Yes" "30-39" "Freelancer" "Research" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" "Rather Low" 1
+"Driving" "Yes" "30-39" "Employee" "Other" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Rather Low" 1
+"Public Transit" "Yes" "40-49" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "30-39" "Entrepreneur" "Other" "Male" "Not Married" "No Health Insurance" "Not Home Office" "Bachelor" "Rather Low" 1
+"Driving" "Yes" "18-29" "Employee" "Business Development" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Rather Low" 1
+"Biking" "No" "50-59" "Employee" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Freelancer" "Education" "Male" NA "Health Insurance" "Not Home Office" NA "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Employee" "Business Development" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Walking" "Yes" "18-29" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Employee" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Employee" "Other" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Home Office" "No Education" "Somewhere In The Middle" 1
+"Biking" "Yes" "40-49" "Employee" "Design" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Higher Management" "Male" "Separated, Divorced, Widowed" "No Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Employee" "Other" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "No" "40-49" "Employee" "Design" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Freelancer" "IT" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Employee" "Business Development" "Female" "Not Married" "Health Insurance" "Home Office" NA "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Freelancer" "IT" "Male" NA "No Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "No" "40-49" "Employee" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Freelancer" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "40-49" "Freelancer" "Research" "Female" NA "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Entrepreneur" "Research" "Male" "Not Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "No" "50-59" "Employee" "Art" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "No" "30-39" "Freelancer" "Education" "Male" "Married" "Health Insurance" "Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Entrepreneur" "Art" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "18-29" "Employee" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Entrepreneur" "Higher Management" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "PR, Marketing, Sales, Advertising" "Female" "Not Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Other" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Design" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Employee" "Higher Management" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Employee" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Biking" "Yes" "50-59" "Employee" "Other" "Female" "Not Married" "No Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Other" "Art" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Other" "Design" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Writing" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "No" "18-29" "Employee" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "No" "30-39" "Employee" "IT" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Walking" "Yes" "50-59" "Entrepreneur" "Art" "Female" "Not Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Somewhere In The Middle" 1
+"Walking" "No" "30-39" "Freelancer" "Business Development" "Male" "Married" "No Health Insurance" "Home Office" "No Education" "Somewhere In The Middle" 1
+"Biking" "Yes" "40-49" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Employee" "Other" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "40-49" "Freelancer" "IT" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "40-49" "Freelancer" "Design" "Male" "Married" "No Health Insurance" "Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Freelancer" "Other" "Female" "Married" "No Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "Design" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "18-29" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Walking" "Yes" "40-49" "Employee" "IT" "Female" "Married" "No Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "30-39" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Entrepreneur" "Other" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "18-29" "Other" "Design" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "30-39" "Freelancer" "Education" "Male" "Married" "Health Insurance" "Home Office" "High School" "Somewhere In The Middle" 1
+"Walking" "No" "30-39" "Other" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Employee" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Employee" "Business Development" "Female" "Not Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "50-59" "Employee" "Business Development" "Female" "Married" "Health Insurance" "Home Office" "Doctoral or Higher" "Somewhere In The Middle" 1
+"Driving" "No" "30-39" "Freelancer" "Business Development" "Male" NA "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "30-39" "Employee" "Design" "Female" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "No" "30-39" "Employee" "Research" "Male" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "18-29" "Employee" "Higher Management" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Other" "IT" "Male" NA "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Other" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Walking" "Yes" "40-49" "Entrepreneur" "IT" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "30-39" "Freelancer" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "Yes" "50-59" "Freelancer" "Other" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Employee" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "50-59" "Employee" "Other" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "18-29" "Employee" "Other" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Freelancer" "Research" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "PR, Marketing, Sales, Advertising" "Female" "Not Married" "No Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Walking" "Yes" "30-39" "Freelancer" "Business Development" "Male" "Married" "Health Insurance" "Not Home Office" "Doctoral or Higher" "Somewhere In The Middle" 1
+"Biking" "No" "30-39" "Freelancer" "Design" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "No" "50-59" "Freelancer" "IT" "Female" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "Art" "Female" "Married" "Health Insurance" "Not Home Office" "High School" "Somewhere In The Middle" 1
+"Driving" "Yes" "60+" "Employee" "Other" "Female" "Not Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "50-59" "Entrepreneur" "Writing" "Male" "Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "No" "50-59" "Entrepreneur" "Education" "Female" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "No" "30-39" "Freelancer" "Design" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "18-29" "Employee" "IT" "Female" "Separated, Divorced, Widowed" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "40-49" "Employee" "Design" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "30-39" "Employee" "Design" "Female" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "50-59" "Employee" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Biking" "Yes" "30-39" "Employee" "IT" "Male" "Not Married" "Health Insurance" "Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Biking" "Yes" "50-59" "Freelancer" "PR, Marketing, Sales, Advertising" "Female" "Married" "Health Insurance" "Home Office" "Master" "Somewhere In The Middle" 1
+"Walking" "Yes" "50-59" "Freelancer" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Somewhere In The Middle" 1
+"Driving" "Yes" "40-49" "Entrepreneur" "Other" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Not Home Office" "Master" "Somewhere In The Middle" 1
+"Public Transit" "Yes" "18-29" "Entrepreneur" "IT" "Female" "Not Married" "No Health Insurance" "Home Office" "Bachelor" "Very High" 1
+"Driving" "Yes" "30-39" "Employee" "Business Development" "Male" "Married" "No Health Insurance" "Not Home Office" "Doctoral or Higher" "Very High" 1
+"Driving" "Yes" "40-49" "Employee" "IT" "Male" "Not Married" "No Health Insurance" "Home Office" "Bachelor" "Very High" 1
+"Walking" "Yes" "30-39" "Employee" "IT" "Female" NA "Health Insurance" "Home Office" "High School" "Very High" 1
+"Driving" "Yes" "30-39" "Employee" "Education" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Very High" 1
+"Driving" "No" "18-29" "Employee" "IT" "Male" NA "Health Insurance" "Not Home Office" "Master" "Very High" 1
+"Driving" "No" "18-29" "Entrepreneur" "Business Development" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Very High" 1
+"Driving" "No" "30-39" "Freelancer" "Other" "Male" "Not Married" "Health Insurance" "Not Home Office" "Bachelor" "Very High" 1
+"Driving" "Yes" "50-59" "Freelancer" "Other" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Very High" 1
+"Biking" "Yes" "60+" "Freelancer" "Research" "Male" "Not Married" "Health Insurance" "Home Office" "Master" "Very High" 1
+"Biking" "Yes" "18-29" "Freelancer" "Higher Management" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" "Very Low" 1
+"Walking" "Yes" "18-29" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Married" "Health Insurance" "Home Office" "Bachelor" "Very Low" 1
+"Biking" "No" "18-29" "Employee" "Business Development" "Male" "Married" "No Health Insurance" "Home Office" "Bachelor" NA 1
+"Driving" "No" "40-49" "Entrepreneur" "Research" "Female" "Married" "No Health Insurance" "Home Office" "Bachelor" NA 1
+"Biking" "Yes" "30-39" "Employee" "IT" "Male" "Separated, Divorced, Widowed" "Health Insurance" "Home Office" NA NA 1
+"Public Transit" "Yes" "18-29" "Employee" "Research" "Female" "Separated, Divorced, Widowed" "Health Insurance" "Home Office" "Master" NA 1
+"Public Transit" "Yes" "18-29" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Not Married" "No Health Insurance" "Home Office" "Bachelor" NA 1
+"Public Transit" "Yes" "40-49" "Employee" "IT" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" NA 1
+"Biking" "Yes" "30-39" "Employee" "Design" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" NA 1
+"Driving" "Yes" "50-59" "Freelancer" "PR, Marketing, Sales, Advertising" "Male" "Separated, Divorced, Widowed" "No Health Insurance" "Home Office" "Master" NA 1
+"Walking" "Yes" "18-29" "Entrepreneur" "Design" "Female" "Married" "Health Insurance" "Home Office" "Bachelor" NA 1
+"Driving" "No" "30-39" "Employee" "Writing" "Male" "Not Married" "Health Insurance" "Not Home Office" "Master" NA 1
+"Walking" "Yes" "18-29" "Employee" "Writing" "Male" "Married" "Health Insurance" "Not Home Office" "Bachelor" NA 1
+"Driving" "Yes" "30-39" "Employee" "IT" "Female" "Not Married" "Health Insurance" "Not Home Office" "Master" NA 1

@@ -320,6 +320,8 @@ The general approach I will take is this: I will delete a random 50% sample from
 * I will delete 50% of Somewhere in the Middle, Rather High, and Very High.
 
 ```{r}
+Census2 <- Census
+
 List <- split(Census, Census$CommuteTime)
 List$Yes <- sample_frac(List$Yes, size = 0.5)
 Census <- rbind(List$Yes, List$No)
@@ -386,5 +388,6 @@ Census <- rbind(List$"1", List$"0")
 
 Census <- subset(Census, select = -Random)
 TrainCensus <- rbind(TrainCensus2, Census)
-model2 <- lm(CoworkMember ~ TransportationMode + AgeBracket + ClassOfWorker + OccupationType + Sex + MaritalStatus + HealthInsurance + HomeOffice + EducationLevel + RelativeIncome, data = TrainCensus)
+write.table(x = TrainCensus, file = "TrainCensus3")
+write.table(x = Census2, file = "Census2")
 ```

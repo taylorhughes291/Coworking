@@ -1,0 +1,119 @@
+---
+title: "Applying Linear Regression and Conclusions"
+author: "Taylor Hughes"
+date: "4/29/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+TrainCensus <- read.table("TrainCensus3", header = TRUE)
+MarketCensus <- read.table("MarketCensus", header = TRUE)
+Census2 <- read.table("Census2", header = TRUE)
+```
+
+## Applying Linear Regression
+```{r}
+CoworkModel <- lm(CoworkMember ~ TransportationMode + AgeBracket + ClassOfWorker + OccupationType + Sex + HealthInsurance + HomeOffice + EducationLevel + RelativeIncome, data = TrainCensus)
+
+CoworkMember <- predict(CoworkModel, newdata = MarketCensus)
+MarketCensus <- cbind(MarketCensus, CoworkMember)
+
+summary(MarketCensus$CoworkMember)
+```
+
+Based off of the summary, we can see that over 3/4 of the population is below 0.1930 in score, whereas the maximum is 0.7721. So we immediately see that there is an upper echelon of high scoring individuals. Let's try plotting that in a scatterplot:
+
+```{r}
+CoworkScores <- ggplot(data = MarketCensus, mapping = aes(x = factor(0), y = CoworkMember)) + geom_point(position = "jitter")
+CoworkScores
+```
+
+It would appear that some natural demarcations to make in this data set are CoworkScores below 0.2, 0.2 - 0.4, and 0.4 and above. We will classify each observation as follows:
+
+* Below 0.2: Not at all likely to be Coworking Member, or "Not Likely"
+* 0.2 - 0.4: Could be a Coworking Member, or "Somewhat Likely"
+* Above 0.4: Probable to be a Coworking Member, or "Very Likely"
+
+```{r}
+MarketCensus <- MarketCensus[!is.na(MarketCensus$CoworkMember),]
+MarketCensus$CoworkLikely[MarketCensus$CoworkMember < 0.2] <- "Not Likely"
+MarketCensus$CoworkLikely[MarketCensus$CoworkMember >= 0.2 &
+                            MarketCensus$CoworkMember < 0.4] <- "Somewhat Likely"
+MarketCensus$CoworkLikely[MarketCensus$CoworkMember >= 0.4] <- "Very Likely"
+
+table(MarketCensus$CoworkLikely)
+```
+
+## Comparing to other Market Areas
+I will compare the Market Area in question to a few Market Areas in the Los Angeles region that we can say are good and bad areas for Coworking Spaces.
+
+The first one we will use is the PUMA area conatining Santa Monica, which is considered a hub of the region known as "Silicon Beach". This area contains a large amount of residents in the technology industry, so the "IT" count will be high in "Occupation Type". The income should be relatively high, there should be a large number of folks with bachelors and masters degrees, and everyone will live within a close proximity to a Coworking Space. 
+
+The second area I will use to test is the Compton/Rancho Dominguez area, which is very far from the nearest Coworking Space and has a relatively low income level.
+
+```{r}
+TestAreaSM <- subset(Census2, subset = (PUMA == 3728 |
+                                         PUMA == 3751 |
+                                         PUMA == 3752), select = -CoworkMember)
+TestAreaSM$CommuteTime <- "Yes"
+TestAreaCRD <- subset(Census2, subset = (PUMA == 3757 |
+                                           PUMA == 3756 |
+                                           PUMA == 3758), select = -CoworkMember)
+TestAreaCRD$CommuteTime <- "No"
+TestAreaSM$TransportationMode[is.na(TestAreaSM$TransportationMode)] <- "Driving"
+TestAreaCRD$TransportationMode[is.na(TestAreaCRD$TransportationMode)] <- "Driving"
+CoworkMember <- predict(CoworkModel, newdata = TestAreaSM)
+TestAreaSM <- cbind(TestAreaSM, CoworkMember)
+CoworkMember <- predict(CoworkModel, newdata = TestAreaCRD)
+TestAreaCRD <- cbind(TestAreaCRD, CoworkMember)
+
+TestAreaSM <- TestAreaSM[!is.na(TestAreaSM$CoworkMember),]
+TestAreaSM$CoworkLikely[TestAreaSM$CoworkMember < 0.2] <- "Not Likely"
+TestAreaSM$CoworkLikely[TestAreaSM$CoworkMember >= 0.2 &
+                            TestAreaSM$CoworkMember < 0.4] <- "Somewhat Likely"
+TestAreaSM$CoworkLikely[TestAreaSM$CoworkMember >= 0.4] <- "Very Likely"
+
+table(TestAreaSM$CoworkLikely)
+
+
+TestAreaCRD <- TestAreaCRD[!is.na(TestAreaCRD$CoworkMember),]
+TestAreaCRD$CoworkLikely[TestAreaCRD$CoworkMember < 0.2] <- "Not Likely"
+TestAreaCRD$CoworkLikely[TestAreaCRD$CoworkMember >= 0.2 &
+                            TestAreaCRD$CoworkMember < 0.4] <- "Somewhat Likely"
+TestAreaCRD$CoworkLikely[TestAreaCRD$CoworkMember >= 0.4] <- "Very Likely"
+
+table(TestAreaCRD$CoworkLikely)
+
+TSM1 <- sample_n(TestAreaSM, size = 1544, replace = FALSE)
+TSM2 <- sample_n(TestAreaCRD, size = 1608, replace = FALSE)
+
+MarketCensus$Set <- "Santa Barbara (Target)"
+TestAreaSM$Set <- "Santa Monica"
+TestAreaCRD$Set <- "South Central"
+TestAreaSM <- subset(TestAreaSM, select = -PUMA)
+TestAreaCRD <- subset(TestAreaCRD, select = -PUMA)
+TestAreaSM$Tract <- 0
+TestAreaCRD$Tract <- 0
+TSM1 <- sample_n(TestAreaSM, size = 1544, replace = FALSE)
+TSM2 <- sample_n(TestAreaCRD, size = 1608, replace = FALSE)
+TestAreaSM <- rbind(TestAreaSM, TSM1)
+TestAreaCRD <- rbind(TestAreaCRD, TSM2)
+MarketCensusPlot <- rbind(MarketCensus, TestAreaSM, TestAreaCRD)
+
+CoworkCompare <- ggplot(data = MarketCensusPlot, mapping = aes(x = Set, y = CoworkMember)) + geom_point(position = "jitter")
+CoworkCompare
+```
+
+Now if we look at the tables of the metrics broken down into likelihood we see the following:
+
+```{r}
+table(MarketCensus$CoworkLikely)
+table(TestAreaSM$CoworkLikely)
+table(TestAreaCRD$CoworkLikely)
+summary(MarketCensus$CoworkMember)
+summary(TestAreaSM$CoworkMember)
+summary(TestAreaCRD$CoworkMember)
+```

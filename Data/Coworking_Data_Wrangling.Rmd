@@ -553,28 +553,28 @@ DriveTime <- gmapsdistance(origin = CensusPop$GoogleInput,
                                      destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
                                      mode = "driving",
                                      arr_date = tomorrow,
-                                     arr_time = "17:00:00")
+                                     arr_time = "16:00:00")
 
 BikeTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
                                     destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
                                     mode = "bicycling",
-                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                                    key = "AIzaSyC2gnvLvWF7eNpW3Vhplj6PAk1mByUJJn4",
                                     arr_date = tomorrow,
-                                    arr_time = "17:00:00")
+                                    arr_time = "16:00:00")
 
 TransitTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
                                     destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
                                     mode = "transit",
-                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                                    key = "AIzaSyC2gnvLvWF7eNpW3Vhplj6PAk1mByUJJn4",
                                     arr_date = tomorrow,
-                                    arr_time = "17:00:00")
+                                    arr_time = "16:00:00")
 
 WalkingTime <- gmapsdistance(origin = CensusPop$GoogleInput, 
                                     destination = "410+Palm+Ave,+Carpinteria,+CA+93013",
                                     mode = "walking",
-                                    key = "AIzaSyAT1wxOfPoPZowF2lPliMGA884ArKVQ7XU",
+                                    key = "AIzaSyC2gnvLvWF7eNpW3Vhplj6PAk1mByUJJn4",
                                     arr_date = tomorrow,
-                                    arr_time = "17:00:00")
+                                    arr_time = "16:00:00")
 
 # DriveTime is a list with three data frames (Time, Distance, Status). Let's get Time over to the CensusPop Data Frame as DrivingTime variable.
 
@@ -676,7 +676,7 @@ TractVentAmtrak <- subset(TractVentAmtrak, select = -Random)
 MarketCensus <- subset(MarketCensus, subset = MarketCensus$Location != 66)
 MarketCensus <- rbind(MarketCensus, TractVentAmtrak)
 
-MarketCensus <- subset(MarketCensus, select = -c(Location, Tract, DriveTime, BikeTime, TransitTime, WalkTime, ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, PUMA))
+MarketCensus <- subset(MarketCensus, select = -c(Location, DriveTime, BikeTime, TransitTime, WalkTime, ArrivalTime, Age, Occupation, TotalIncome, IncomeAdjuster, PUMA))
 ```
 
 ## Conclusion to Data Wrangling for Market Area
@@ -949,7 +949,7 @@ Census$RelativeIncome <- as.factor(Census$RelativeIncome)
 
 Census$CoworkMember <- 0
 
-Census <- subset(Census, select = -c(ArrivalTime, Age, Occupation, IncomeAdjuster, PUMA))
+Census <- subset(Census, select = -c(ArrivalTime, Age, Occupation, IncomeAdjuster))
 ```
 
 ### Commute Time to nearest Coworking Space
@@ -1006,13 +1006,13 @@ CensusPopCA$SpaceInput <- paste(CensusPopCA$latitude, CensusPopCA$longitude, sep
 ```
 
 ```{r, eval = FALSE}
-set.api.key("AIzaSyDr7XpI24NrDVnAZIgDkj32zhm3q0Z8Xcg")
+set.api.key("AIzaSyDcdpLH31b0A7BPKF5qXJIgc4eyuAwLz60")
 TrainDriveTime <- gmapsdistance(origin = CensusPopCA$GoogleInput, 
                                      destination = CensusPopCA$SpaceInput,
                                      combinations = "pairwise",
                                      mode = "driving",
                                      arr_date = tomorrow,
-                                     arr_time = "17:00:00")
+                                     arr_time = "16:00:00")
 
 TrainDriveTime$Time$or <- as.character(TrainDriveTime$Time$or)
 TrainDriveTime$Time <- subset(TrainDriveTime$Time, select = -de)
@@ -1034,6 +1034,7 @@ Census$CommuteTime <- as.factor(Census$CommuteTime)
 levels(Census$CommuteTime) <- c("Yes", "No")
 
 Census <- subset(Census, select = -c(Location, TotalIncome))
+TrainCensus$PUMA <- NA
 TrainCensus2 <- TrainCensus
 TrainCensus <- rbind(TrainCensus, Census)
 
